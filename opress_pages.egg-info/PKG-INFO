@@ -1,0 +1,21 @@
+Metadata-Version: 1.1
+Name: opress-pages
+Version: 0.1
+Summary: A simple Django app to create static pages.
+Home-page: http://www.dominicos.org/
+Author: Oficina Internet Dominicos
+Author-email: portalop@dominicos.org
+License: BSD License
+Description: UNKNOWN
+Platform: UNKNOWN
+Classifier: Environment :: Web Environment
+Classifier: Framework :: Django
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: BSD License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.2
+Classifier: Programming Language :: Python :: 3.3
+Classifier: Topic :: Internet :: WWW/HTTP
+Classifier: Topic :: Internet :: WWW/HTTP :: Dynamic Content
