@@ -48,7 +48,7 @@ class PaginaAdmin(DjangoMpttAdmin):
             'fields': ('titulo', 'slug', 'icono', 'parent', 'descripcion', 'contenido'),
         }),
         ('Configuración avanzada', {
-            'fields': (('in_menu', 'menu'), 'template_url', 'es_seccion'),
+            'fields': (('in_menu', 'menu'), 'imagen_cabecera', 'template_url', 'es_seccion'),
         })
     )
     form = PaginaAdminForm
