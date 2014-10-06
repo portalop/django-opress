@@ -9,14 +9,18 @@ os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 setup(
     name='opress',
     version='0.1',
-    packages=['pages'],
-    include_package_data=True,
+    packages=['opress'],
     license='BSD License',  # example license
     description='A simple Django app to create static pages.',
 #    long_description=README,
     url='http://www.dominicos.org/',
     author='Oficina Internet Dominicos',
     author_email='portalop@dominicos.org',
+    package_data={
+        'opress': [
+            'static/opress/js/*.js',
+        ]
+    },
     classifiers=[
         'Environment :: Web Environment',
         'Framework :: Django',

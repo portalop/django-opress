@@ -12,20 +12,21 @@ PAGES_ICON_SIZE = getattr(settings, 'OPRESS_PAGES_ICON_SIZE', 'page_icon')
 @python_2_unicode_compatible
 class Pagina(MPTTModel):
     titulo = models.CharField("Título", max_length=300)
-    icono = PhotoField(image_size="page_icon", verbose_name="Icono " + PAGES_ICON_SIZE_LABEL, blank=True, null=True)
+    slug = models.SlugField('url', unique=True)
+    icono = PhotoField(image_size="page_icon", verbose_name="Icono " + PAGES_ICON_SIZE_LABEL, blank=True, null=True, on_delete=models.SET_NULL)
     parent = TreeForeignKey('self', verbose_name="Pertenece a", null=True, blank=True, related_name='children')
+    descripcion = models.TextField("Descripción", blank=True)
+    contenido = models.TextField(blank=True)
+    in_menu = models.BooleanField("¿Está en el menú?", default=False)
+    menu = models.CharField("Menú", blank=True, max_length=300)
+    template_url = models.CharField("URL Plantilla", blank=True, max_length=300)
+    es_seccion = models.BooleanField("¿Es sección?", default=False)
     def __str__(self):
         return self.titulo
-    def page_icon(self):
-        if self.icono:
-            return u'<img src="%s" />' % getattr(self.icono, "get_%s_url" % PAGES_ICON_SIZE)()
-        else:
-            return "<em>(Sin icono)</em>"
-    page_icon.short_description = 'Vista previa icono'
-    page_icon.allow_tags = True
     class Meta:
         verbose_name = 'página'
         verbose_name_plural = 'páginas'
         ordering = ['titulo']
+        order_with_respect_to = 'parent'
     class MPTTMeta:
         order_insertion_by = ['titulo']
