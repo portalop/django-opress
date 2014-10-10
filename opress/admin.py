@@ -39,7 +39,7 @@ class PaginaAdminForm(forms.ModelForm):
         OPRESS_TINYMCE_DEFAULT_CONFIG.update({'width': 980, 'height': 600})
 
 class PaginaAdmin(DjangoMpttAdmin):
-    search_fields = ['titulo']
+    search_fields = ['titulo', 'descripcion']
     tree_auto_open = 0
     list_display = ('titulo',)
     prepopulated_fields = {'slug': ('titulo',)}
