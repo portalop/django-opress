@@ -12,4 +12,5 @@ opress.egg-info/top_level.txt
 opress/static/opress/js/jquery.Jcrop.min.js
 opress/static/opress/js/jquery.color.js
 opress/static/opress/js/jquery.min.js
+opress/static/opress/js/opress.js
 opress/static/opress/js/tinymce_setup.js
