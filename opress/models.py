@@ -2,13 +2,16 @@
 from django.utils.encoding import python_2_unicode_compatible
 from django.db import models
 from django.conf import settings
+from django.core import urlresolvers
+from django.contrib.contenttypes.models import ContentType
+from django.utils.translation import ugettext_lazy as _
+from django.core.urlresolvers import reverse
+from django.template.defaultfilters import date as _date
 from datetime import datetime
 from photologue.fields import PhotoField
 from filebrowser.fields import FileBrowseField
 from mptt.models import MPTTModel, TreeForeignKey
 from sortedm2m.fields import SortedManyToManyField
-from django.utils.translation import ugettext_lazy as _
-from django.core.urlresolvers import reverse
 from taggit.managers import TaggableManager
 
 PAGES_ICON_SIZE_LABEL = getattr(settings, 'OPRESS_PAGES_ICON_SIZE_LABEL', '(110x110px)')
@@ -57,6 +60,9 @@ class Pagina(MPTTModel):
     imagen_cabecera = PhotoField(image_size=IMAGE_SIZES['pagina_cabecera'][IMAGESIZE_NAME], verbose_name="Imagen cabecera " + IMAGE_SIZES['pagina_cabecera'][IMAGESIZE_LABEL], blank=True, null=True, on_delete=models.SET_NULL, related_name='paginas_cabeceras_set')
     template_url = models.CharField("URL Plantilla", blank=True, max_length=300)
     es_seccion = models.BooleanField("¿Es sección?", default=False)
+    def get_admin_url(self):
+        content_type = ContentType.objects.get_for_model(self.__class__)
+        return urlresolvers.reverse("admin:%s_%s_change" % (content_type.app_label, content_type.model), args=(self.id,))
     def get_absolute_url(self):
         return reverse('opress.views.static_page', args=[self.get_url()])
     def get_url(self):
@@ -127,6 +133,14 @@ class Agenda(models.Model):
             return "<em>(Sin icono)</em>"
     icono_img.short_description = 'Icono'
     icono_img.allow_tags = True
+    def get_dates_str(self):
+        if self.fecha_inicio == self.fecha_fin:
+            return self.fecha_fin.strftime("%-d de " + _date(self.fecha_inicio, "F") + " de %Y")
+        else:
+            if self.fecha_inicio.month == self.fecha_fin.month:
+                return self.fecha_inicio.strftime("Del %-d ") + self.fecha_fin.strftime("al %-d de " + _date(self.fecha_inicio, "F") + " de %Y")
+            else:
+                return self.fecha_inicio.strftime("Del %-d de " + _date(self.fecha_inicio, "F") + " de %Y ") + self.fecha_fin.strftime("al %-d de " + _date(self.fecha_fin, "F") + " de %Y")
     def __str__(self):
         return self.titulo
     class Meta:
@@ -236,9 +250,17 @@ class Destacado(models.Model):
 @python_2_unicode_compatible
 class CategoriaDocumento(MPTTModel):
     nombre = models.CharField("Nombre", max_length=300)
+    slug = models.SlugField('url', unique=False)
     parent = TreeForeignKey('self', verbose_name="Pertenece a", null=True, blank=True, related_name='children')
     def __str__(self):
         return self.nombre
+    def get_absolute_url(self):
+        return reverse('opress.views.documents_archive', args=[self.get_url()])
+    def get_url(self):
+        url_ancestors = ''
+        for ancestor in self.get_ancestors():
+            url_ancestors += ancestor.slug + '/'
+        return url_ancestors + self.slug
     class Meta:
         verbose_name = 'categoría de documentos'
         verbose_name_plural = 'categorías de documentos'
@@ -248,6 +270,7 @@ class CategoriaDocumento(MPTTModel):
 @python_2_unicode_compatible
 class Documento(models.Model):
     nombre = models.CharField("Nombre", max_length=300)
+    slug = models.SlugField('url', unique=False)
     descripcion = models.TextField('Entradilla', null=True, blank=True)
     fecha = models.DateField('Fecha', default=datetime.now, blank=True)
     archivo = FileBrowseField("Archivo PDF", max_length=300, extensions=settings.FILEBROWSER_EXTENSIONS["Document"], blank=True, null=True)
@@ -255,6 +278,10 @@ class Documento(models.Model):
     categoria = models.ForeignKey(CategoriaDocumento, verbose_name=_('Categoría'), blank=True, null=True)
     def __str__(self):
         return self.nombre
+    def get_absolute_url(self):
+        return reverse('opress.views.document_detail', args=[self.get_url()])
+    def get_url(self):
+        return self.categoria.get_url() + '/' + self.slug
     class Meta:
         ordering = ['nombre']
         order_with_respect_to = 'categoria'
