@@ -1,14 +1,29 @@
 from datetime import datetime
+from django.contrib.admin.views.decorators import staff_member_required
 from django.template import RequestContext
 from django.http import HttpResponse, Http404
 from django.core.urlresolvers import reverse
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.shortcuts import get_object_or_404, render
+from django.views.generic import View
 from django.db.models import Q
 from photologue.models import Gallery, Photo, PhotoSize
 import json
-from .models import Pagina, Noticia, Agenda, Bloque, Destacado, Documento, CategoriaDocumento
+from .models import Pagina, Noticia, Agenda, Bloque, Destacado, Documento, CategoriaDocumento, Boletin
+from .search import get_query
 from django.conf import settings
+
+def set_warning_cookie(the_func):
+    """
+    Set the cookie to disable the cookie warnings
+    """
+    def _decorated(*args, **kwargs):
+        response = the_func(*args, **kwargs)
+        response.set_cookie('cookie_warning', 'ok') 
+        return response
+    _decorated.__doc__=the_func.__doc__
+    _decorated.__name__=the_func.__name__
+    return _decorated
 
 def galleries(request):
     format = request.GET.get('format', 'json')
@@ -46,13 +61,18 @@ def image_src(request, photo_id, size_id):
         return HttpResponse(data, content_type="application/javascript")
     return HttpResponse(data, content_type="text")
 
-def index(request):
-    news_list = Noticia.objects.filter(fecha__lt=datetime.now()).order_by('-fecha')[:4]
-    agenda_list = Agenda.objects.filter(fecha_fin__gte=datetime.now().date()).order_by('fecha_inicio')[:3]
-    slider_list = Destacado.objects.filter(visible=True)
-    institutions_list = Pagina.objects.get(slug='instituciones', level=1).get_descendants(include_self=False).filter(level=3).order_by('?')[:6]
-    return render(request, 'opress/index.html', {'IS_PRODUCTION': settings.PRODUCTION, 'arbol_paginas': Pagina.objects.filter(in_menu=True), 'seccion': None, 'news_list': news_list, 'agenda_list': agenda_list, 'slider_list': slider_list, 'institutions_list': institutions_list})
+class IndexView(View):
+    def get_additional_content(self):
+        pass
 
+    @set_warning_cookie
+    def get(self, request):
+        news_list = Noticia.objects.filter(fecha__lte=datetime.now()).order_by('-fecha')[:6]
+        agenda_list = Agenda.objects.filter(fecha_fin__gte=datetime.now().date()).order_by('fecha_inicio')[:3]
+        slider_list = Destacado.objects.filter(visible=True)
+        return render(request, 'opress/index.html', {'arbol_paginas': Pagina.objects.filter(in_menu=True), 'seccion': None, 'news_list': news_list, 'agenda_list': agenda_list, 'slider_list': slider_list, 'additional_content': self.get_additional_content()})
+
+@set_warning_cookie
 def static_page(request, slug):
     if slug == 'noticia':
         raise Http404
@@ -70,15 +90,16 @@ def static_page(request, slug):
             return render(request, 'opress/static_page.html', {'pagina': pagina, 'bloque_list': bloque_list, 'arbol_paginas': Pagina.objects.filter(in_menu=True), 'arbol_seccion': arbol_seccion, 'seccion': seccion})
     raise Http404
 
+@set_warning_cookie
 def news_detail(request, slug):
     pagina_noticias = None
     for pagina in Pagina.objects.filter(slug='noticia'):
         if pagina.get_url() == 'noticia':
             pagina_noticias = pagina
     noticia = get_object_or_404(Noticia, slug=slug)
-    news_list = Noticia.objects.filter(~Q(slug=slug), fecha__lte=noticia.fecha, fecha__lt=datetime.now()).order_by('-fecha')[:4]
+    news_list = Noticia.objects.filter(~Q(slug=slug), fecha__lte=min([noticia.fecha, datetime.now().date()])).order_by('-fecha')[:4]
 
-    id_list = list(Noticia.objects.filter(fecha__lt=datetime.now()).order_by('-fecha').values_list('id', flat=True))
+    id_list = list(Noticia.objects.filter(fecha__lte=datetime.now()).order_by('-fecha').values_list('id', flat=True))
     try:
         noticia_siguiente = None
         noticia_anterior = None
@@ -92,12 +113,13 @@ def news_detail(request, slug):
     noticia.contenido = noticia.contenido.replace('"/media/', '"' + settings.MEDIA_URL).replace("'/media/", "'" + settings.MEDIA_URL)
     return render(request, 'opress/news_detail.html', {'noticia': noticia, 'noticia_siguiente': noticia_siguiente, 'noticia_anterior': noticia_anterior, 'pagina': pagina_noticias, 'arbol_paginas': Pagina.objects.filter(in_menu=True), 'seccion': pagina_noticias.get_root(), 'historico': Noticia.objects.filter(fecha__lt=datetime.now()).dates('fecha', 'year', order='DESC'), 'news_list': news_list})
 
+@set_warning_cookie
 def news_archive(request, year):
     pagina_noticias = None
     for pagina in Pagina.objects.filter(slug='noticias'):
         if pagina.get_url() == 'noticias':
             pagina_noticias = pagina
-    news_list = Noticia.objects.filter(fecha__lt=datetime.now()).order_by('-fecha')
+    news_list = Noticia.objects.filter(fecha__lte=datetime.now()).order_by('-fecha')
     if year:
         news_list = news_list.filter(fecha__year=year)
     paginator = Paginator(news_list, 20)
@@ -112,9 +134,11 @@ def news_archive(request, year):
         news_list = paginator.page(paginator.num_pages)
     return render(request, 'opress/news.html', {'pagina': pagina_noticias, 'arbol_paginas': Pagina.objects.filter(in_menu=True), 'seccion': pagina_noticias.get_root(), 'news_list': news_list, 'year': year, 'historico': Noticia.objects.filter(fecha__lt=datetime.now()).dates('fecha', 'year', order='DESC')})
 
+@set_warning_cookie
 def news(request):
     return news_archive(request, None)
 
+@set_warning_cookie
 def events_archive(request, year, month):
     pagina_agenda = None
     for pagina in Pagina.objects.filter(slug='agenda'):
@@ -135,9 +159,11 @@ def events_archive(request, year, month):
         events_list = paginator.page(paginator.num_pages)
     return render(request, 'opress/events.html', {'pagina': pagina_agenda, 'arbol_paginas': Pagina.objects.filter(in_menu=True), 'seccion': pagina_agenda.get_root(), 'events_list': events_list, 'meses': Agenda.objects.filter(fecha_inicio__gte=datetime.today()).dates('fecha_inicio', 'month', order='ASC'), 'anyo_actual': year, 'mes_actual': month})
 
+@set_warning_cookie
 def events(request):
     return events_archive(request, None, None)
 
+@set_warning_cookie
 def event_detail(request, slug):
     pagina_agenda = None
     for pagina in Pagina.objects.filter(slug='evento'):
@@ -149,6 +175,7 @@ def event_detail(request, slug):
     evento.contenido = evento.contenido.replace('"/media/', '"' + settings.MEDIA_URL).replace("'/media/", "'" + settings.MEDIA_URL)
     return render(request, 'opress/event_detail.html', {'evento': evento, 'pagina': pagina_agenda, 'arbol_paginas': Pagina.objects.filter(in_menu=True), 'seccion': pagina_agenda.get_root(), 'events_list': events_list, 'meses': Agenda.objects.filter(fecha_inicio__gte=datetime.today()).dates('fecha_inicio', 'month', order='ASC')})
 
+@set_warning_cookie
 def documents_archive(request, slug):
     pagina_documentos = None
     for pagina in Pagina.objects.filter(slug='documentos'):
@@ -176,9 +203,11 @@ def documents_archive(request, slug):
         documents_list = paginator.page(paginator.num_pages)
     return render(request, 'opress/documents.html', {'pagina': pagina_documentos, 'arbol_paginas': Pagina.objects.filter(in_menu=True), 'seccion': pagina_documentos.get_root(), 'documents_list': documents_list, 'categorias': categorias, 'categoria_actual': categoria})
 
+@set_warning_cookie
 def documents(request):
     return documents_archive(request, None)
 
+@set_warning_cookie
 def document_detail(request, slug):
     pagina_documento = None
     for pagina in Pagina.objects.filter(slug='documento'):
@@ -194,3 +223,76 @@ def document_detail(request, slug):
 
     documento.descripcion = documento.descripcion.replace('"/media/', '"' + settings.MEDIA_URL).replace("'/media/", "'" + settings.MEDIA_URL)
     return render(request, 'opress/document_detail.html', {'documento': documento, 'pagina': pagina_documento, 'arbol_paginas': Pagina.objects.filter(in_menu=True), 'seccion': pagina_documento.get_root(), 'documents_list': documents_list, 'categorias': categorias})
+
+@staff_member_required
+def generar_boletin(request, boletin_id):
+    boletin = get_object_or_404(Boletin, id=boletin_id)
+    news_list = list(Noticia.objects.filter(fecha__gte=boletin.fecha_inicio, fecha__lte=boletin.fecha_fin).order_by('-fecha'))
+    boletin.cabecera = boletin.cabecera.replace(' class="left"', 'align="left" hspace="10"').replace(' class="right"', 'align="right" hspace="10"')
+    boletin.pie = boletin.pie.replace(' class="left"', 'align="left" hspace="10"').replace(' class="right"', 'align="right" hspace="10"')
+    for noticia in news_list:
+        noticia.contenido = noticia.contenido.replace(' class="left"', 'align="left" hspace="10"').replace(' class="right"', 'align="right" hspace="10"')
+    return render(request, 'opress/newsletter.html', {'news_list': news_list, 'newsletter': boletin})
+
+@set_warning_cookie
+def search(request, filtro=""):
+    pagina_buscar = None
+    for pagina in Pagina.objects.filter(slug='buscar'):
+        if pagina.get_url() == 'buscar':
+            pagina_buscar = pagina
+    query_string = ''
+    found_pages = None
+    found_news = None
+    found_events = None
+    found_documents = None
+    if ('q' in request.GET) and request.GET['q'].strip():
+        query_string = request.GET['q']
+        if filtro == '':
+            num_results = 5
+        else:
+            num_results = 10
+        if filtro == 'pagina' or filtro == '':
+            entry_query = get_query(query_string, ['titulo', 'descripcion', 'menu', 'contenido'])
+            found_pages = Pagina.objects.filter(entry_query)[:num_results]
+        if filtro == 'noticia' or filtro == '':
+            entry_query = get_query(query_string, ['titulo', 'entradilla', 'contenido'])
+            found_news = Noticia.objects.filter(entry_query)[:num_results]
+        if filtro == 'agenda' or filtro == '':
+            entry_query = get_query(query_string, ['titulo', 'entradilla', 'contenido'])
+            found_events = Agenda.objects.filter(entry_query)[:num_results]
+        if filtro == 'documento' or filtro == '':
+            entry_query = get_query(query_string, ['nombre', 'descripcion'])
+            found_documents = Documento.objects.filter(entry_query)[:num_results]
+    found_entries = {'pages': found_pages, 'news': found_news, 'events': found_events, 'documents': found_documents}
+    return render(request, 'opress/search.html', {'pagina': pagina_buscar, 'arbol_paginas': Pagina.objects.filter(in_menu=True), 'filtro': filtro, 'query_string': query_string, 'found_entries': found_entries, 'page_size': num_results})
+
+def search_more(request, filtro=""):
+    query_string = ''
+    found_pages = None
+    found_news = None
+    found_events = None
+    found_documents = None
+    if ('q' in request.GET) and request.GET['q'].strip():
+        query_string = request.GET['q']
+        offset = int(request.GET['offset'])
+        last = offset + int(request.GET['page_size'])
+        if filtro == 'pagina':
+            entry_query = get_query(query_string, ['titulo', 'descripcion', 'menu', 'contenido'])
+            found_pages = Pagina.objects.filter(entry_query)[offset:last]
+        if filtro == 'noticia':
+            entry_query = get_query(query_string, ['titulo', 'entradilla', 'contenido'])
+            found_news = Noticia.objects.filter(entry_query)[offset:last]
+        if filtro == 'agenda':
+            entry_query = get_query(query_string, ['titulo', 'entradilla', 'contenido'])
+            found_events = Agenda.objects.filter(entry_query)[offset:last]
+        if filtro == 'documento':
+            entry_query = get_query(query_string, ['nombre', 'descripcion'])
+            found_documents = Documento.objects.filter(entry_query)[offset:last]
+    found_entries = {'pages': found_pages, 'news': found_news, 'events': found_events, 'documents': found_documents}
+    return render(request, 'opress/search_more.html', {'filtro_mas': filtro, 'found_entries': found_entries,})
+
+@set_warning_cookie
+def error404(request):
+    response = render(request, 'opress/404.html', {'arbol_paginas': Pagina.objects.filter(in_menu=True),})
+    response.status_code = 404
+    return response

@@ -2,7 +2,7 @@
 from django.utils.encoding import python_2_unicode_compatible
 from django.db import models
 from django.conf import settings
-from django.core import urlresolvers
+#from django.core import urlresolvers
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext_lazy as _
 from django.core.urlresolvers import reverse
@@ -62,7 +62,7 @@ class Pagina(MPTTModel):
     es_seccion = models.BooleanField("¿Es sección?", default=False)
     def get_admin_url(self):
         content_type = ContentType.objects.get_for_model(self.__class__)
-        return urlresolvers.reverse("admin:%s_%s_change" % (content_type.app_label, content_type.model), args=(self.id,))
+        return reverse("admin:%s_%s_change" % (content_type.app_label, content_type.model), args=(self.id,))
     def get_absolute_url(self):
         return reverse('opress.views.static_page', args=[self.get_url()])
     def get_url(self):
@@ -87,12 +87,14 @@ class Pagina(MPTTModel):
 class Noticia(models.Model):
     titulo = models.CharField("Título", max_length=300)
     slug = models.SlugField('url', unique=True)
-    fecha = models.DateField('Fecha', default=datetime.now, blank=True)
+    fecha = models.DateField('Fecha', default=datetime.now, blank=True, db_index=True)
     entradilla = models.TextField('Entradilla')
     icono = PhotoField(image_size=IMAGE_SIZES['noticias_icono_portada'][IMAGESIZE_NAME], verbose_name="Icono " + IMAGE_SIZES['noticias_icono_portada'][IMAGESIZE_LABEL], on_delete=models.PROTECT, related_name='noticias_iconos_set')
     imagen = PhotoField(image_size=IMAGE_SIZES['noticia_imagen'][IMAGESIZE_NAME], verbose_name="Imagen " + IMAGE_SIZES['noticia_imagen'][IMAGESIZE_LABEL], blank=True, null=True, on_delete=models.SET_NULL, related_name='noticias_imagenes_set')
     tags = TaggableManager('Etiquetas', blank=True)
     contenido = models.TextField('Contenido')
+    def get_absolute_url(self):
+        return reverse('opress.views.news_detail', args=[self.slug])
     def icono_img(self):
         if self.icono:
             return u'<img src="%s?%s" />' % (self.icono.get_admin_thumbnail_url(), datetime.now().time().microsecond)
@@ -109,8 +111,8 @@ class Noticia(models.Model):
 class Agenda(models.Model):
     titulo = models.CharField("Título", max_length=300)
     slug = models.SlugField('url', unique=True)
-    fecha_inicio = models.DateField('Fecha de inicio')
-    fecha_fin = models.DateField('Fecha de fin', null=True, blank=True)
+    fecha_inicio = models.DateField('Fecha de inicio', db_index=True)
+    fecha_fin = models.DateField('Fecha de fin', null=True, blank=True, db_index=True)
     entradilla = models.TextField('Entradilla', null=True, blank=True)
     icono = PhotoField(image_size=IMAGE_SIZES['agenda_icono'][IMAGESIZE_NAME], verbose_name="Icono " + IMAGE_SIZES['agenda_icono'][IMAGESIZE_LABEL], on_delete=models.SET_NULL, blank=True, null=True)
     tags = TaggableManager('Etiquetas', blank=True)
@@ -126,6 +128,8 @@ class Agenda(models.Model):
     viernes = models.BooleanField(default=False)
     sabado = models.BooleanField(default=False)
     domingo = models.BooleanField(default=False)
+    def get_absolute_url(self):
+        return reverse('opress.views.event_detail', args=[self.slug])
     def icono_img(self):
         if self.icono:
             return u'<img src="%s?%s" />' % (self.icono.get_admin_thumbnail_url(), datetime.now().time().microsecond)
@@ -182,6 +186,11 @@ class Bloque(models.Model):
     flickr_album = models.CharField("Id del álbum (Flickr)", max_length=30, blank=True, null=True)
     timeline = models.ForeignKey('Timeline', verbose_name=_('Timeline'), null=True, blank=True)
     se_hereda = models.BooleanField(default=False)
+    def get_paginas(self):
+        paginas_list = self.paginas_cabecera.all() | self.paginas_pie.all()
+        if self.se_hereda:
+            for pagina in paginas_list:
+                paginas_list = paginas_list | pagina.get_descendants(include_self==False)
     def get_menu(self):
         if self.se_hereda:
             menu_bloque = self.paginas_cabecera.get_descendants(include_self=True).filter(in_menu=True)
@@ -285,3 +294,22 @@ class Documento(models.Model):
     class Meta:
         ordering = ['nombre']
         order_with_respect_to = 'categoria'
+
+@python_2_unicode_compatible
+class Boletin(models.Model):
+    nombre = models.CharField("Nombre", max_length=300)
+    fecha_inicio = models.DateField('Fecha de inicio', db_index=True)
+    fecha_fin = models.DateField('Fecha de fin', null=True, blank=True, db_index=True, default=datetime.today())
+    imagen = PhotoField(image_size=IMAGE_SIZES['portada_destacado'][IMAGESIZE_NAME], verbose_name="Imagen " + IMAGE_SIZES['portada_destacado'][IMAGESIZE_LABEL], blank=True, null=True, on_delete=models.SET_NULL)
+    cabecera = models.TextField(blank=True)
+    pie = models.TextField(blank=True)
+    def __str__(self):
+        return self.nombre
+    def ver_boletin(self):
+        return "<a target='_blank' href='%s'>Generar boletín</a>" % reverse("generar_boletin", args=(self.id,))
+    ver_boletin.short_description = 'Generar'
+    ver_boletin.allow_tags = True
+    class Meta:
+        verbose_name = 'boletín'
+        verbose_name_plural = 'boletines'
+        ordering = ['fecha_inicio']

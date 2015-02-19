@@ -1,7 +1,7 @@
 ﻿from django import forms
 from django.contrib import admin
 from django.core.urlresolvers import reverse
-from .models import Pagina, Bloque, Noticia, Agenda, Timeline, TimelineItem, FlickrUser, Documento, CategoriaDocumento, Destacado, BLOCK_TYPE_CHOICES
+from .models import Pagina, Bloque, Noticia, Agenda, Timeline, TimelineItem, FlickrUser, Documento, CategoriaDocumento, Destacado, Boletin, BLOCK_TYPE_CHOICES
 from django.conf import settings
 from django.contrib.admin.widgets import RelatedFieldWidgetWrapper
 from django_mptt_admin.admin import DjangoMpttAdmin
@@ -78,6 +78,13 @@ class CategoriaDocumentoAdminForm(forms.ModelForm):
         super(CategoriaDocumentoAdminForm, self).__init__(*args,**kwargs)
         if 'parent_id' in request.GET:
             self.fields['parent'].initial = CategoriaDocumento.objects.get(pk=request.GET.get('parent_id'))
+
+class BoletinAdminForm(forms.ModelForm):
+    cabecera = forms.CharField(required=False, widget=TinyMCE(mce_attrs=customize_tinyMCE({'width': 980, 'height': 600})))
+    pie = forms.CharField(required=False, widget=TinyMCE(mce_attrs=customize_tinyMCE({'width': 980, 'height': 600})))
+    def __init__(self, *args, **kwargs):
+        super(BoletinAdminForm, self).__init__(*args,**kwargs)
+        init_gallerycon_settings()
 
 class StackedInlineWithoutWidgetWrapper(admin.StackedInline):
     classes = ('grp-collapse grp-open',)
@@ -192,7 +199,7 @@ class AgendaAdmin(admin.ModelAdmin):
     list_display = ('icono_img', 'fecha_inicio', 'fecha_fin', 'titulo', 'entradilla')
     list_display_links = ('titulo',)
     fields = ('titulo', 'slug', 'fecha_inicio', 'fecha_fin', 'entradilla', 'icono', 'tags', 'contenido', ('se_anuncia', 'inicio_anuncio', 'fin_anuncio',), 'es_periodico', ('lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo'))
-    prepopulated_fields = {'slug': ('titulo',), 'fin_anuncio': ('fecha_inicio',)}
+    prepopulated_fields = {'slug': ('titulo',),}
     form = AgendaAdminForm
 
     class Media:
@@ -217,6 +224,18 @@ class CategoriaDocumentoAdmin(DjangoMpttAdmin):
         form_with_request.request = request
         return form_with_request
 
+class BoletinAdmin(admin.ModelAdmin):
+    search_fields = ['nombre', 'fecha_inicio']
+    list_display = ('fecha_inicio', 'fecha_fin', 'nombre', 'ver_boletin')
+    list_display_links = ('nombre',)
+    fields = ('nombre', 'fecha_inicio', 'fecha_fin', 'imagen', 'cabecera', 'pie')
+    form = BoletinAdminForm
+
+    class Media:
+        js = [
+            settings.STATIC_URL + 'grappelli/tinymce/jscripts/tiny_mce/tiny_mce.js',
+        ]
+
 admin.site.register(Pagina, PaginaAdmin)
 admin.site.register(Bloque, BloqueAdmin)
 admin.site.register(Timeline, TimelineAdmin)
@@ -224,4 +243,5 @@ admin.site.register(FlickrUser, FlickrUserAdmin)
 admin.site.register(Noticia, NoticiaAdmin)
 admin.site.register(Agenda, AgendaAdmin)
 admin.site.register(CategoriaDocumento, CategoriaDocumentoAdmin)
+admin.site.register(Boletin, BoletinAdmin)
 admin.site.register(Destacado)

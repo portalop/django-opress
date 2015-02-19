@@ -1,7 +1,11 @@
 setup.py
 opress/__init__.py
 opress/admin.py
+opress/apps.py
+opress/context_processors.py
 opress/models.py
+opress/search.py
+opress/signals.py
 opress/tests.py
 opress/urls.py
 opress/views.py
@@ -9,6 +13,9 @@ opress.egg-info/PKG-INFO
 opress.egg-info/SOURCES.txt
 opress.egg-info/dependency_links.txt
 opress.egg-info/top_level.txt
+opress/management/__init__.py
+opress/management/commands/__init__.py
+opress/management/commands/clear_cache.py
 opress/static/opress/js/jquery.Jcrop.min.js
 opress/static/opress/js/jquery.color.js
 opress/static/opress/js/jquery.min.js
