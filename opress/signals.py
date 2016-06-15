@@ -3,7 +3,7 @@ from django.dispatch import receiver
 from django.core.cache import cache
 from django.conf import settings
 from django.core.urlresolvers import reverse
-from models import Pagina, Noticia, PublicacionSitio
+#from models import Pagina, Noticia, PublicacionSitio
 from serializers import NoticiaSerializer
 import requests
 import json
