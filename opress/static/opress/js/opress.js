@@ -1,12 +1,14 @@
 var parameters = {
-    'fields': ['titulo', 'imagen', 'enlace', 'contenido', 'flickr_user', 'flickr_album', 'timeline'],
+    'fields': ['titulo', 'imagen', 'enlace', 'contenido', 'flickr_user', 'flickr_album', 'timeline', 'mapa'],
     'types':[
 	    {'value': '', 'show': []},
 	    {'value': 'html', 'show': ['titulo', 'contenido']},
         {'value': 'image', 'show': ['titulo', 'imagen', 'enlace']},
 	    {'value': 'card', 'show': ['titulo', 'imagen', 'contenido']},
 	    {'value': 'timeline', 'show': ['titulo', 'timeline']},
-	    {'value': 'flickr', 'show': ['titulo', 'flickr_user', 'flickr_album']},
+        {'value': 'flickr', 'show': ['titulo', 'flickr_user', 'flickr_album']},
+        {'value': 'youtube', 'show': ['titulo', 'icono', 'youtube_id']},
+        {'value': 'map', 'show': ['titulo', 'mapa']},
     ]
 };
 

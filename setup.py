@@ -19,6 +19,9 @@ setup(
     package_data={
         'opress': [
             'static/opress/js/*.js',
+            'static/colorbox/js/*.js',
+            'static/colorbox/css/*.css',
+            'static/colorbox/images/*.*',
         ]
     },
     classifiers=[

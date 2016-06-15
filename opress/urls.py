@@ -1,14 +1,22 @@
 from django.conf.urls import *
 from .views import *
 from django.contrib import admin
+from rest_framework import routers
 
-urlpatterns = patterns('',
-    (r'^admin/opress/galleries', galleries),
-    (r'^admin/opress/images/(\-?\d+)', images),
-    (r'^admin/opress/image/(\d+)', image),
-    (r'^admin/opress/image_src/(\d+)/(\w+)', image_src),
+router = routers.DefaultRouter()
+router.register(r'users', UserViewSet)
+router.register(r'groups', GroupViewSet)
+router.register(r'noticias', NoticiaViewSet)
+router.register(r'photos', PhotoViewSet)
+router.register(r'sites', SiteViewSet)
+
+urlpatterns = [
+    url(r'^admin/opress/galleries', galleries),
+    url(r'^admin/opress/images/(\-?\d+)', images),
+    url(r'^admin/opress/image/(\d+)', image),
+    url(r'^admin/opress/image_src/(\d+)/(\w+)', image_src),
     url(r'^admin/opress/boletin/view/(\d+)', generar_boletin, name='generar_boletin'),
-    (r'^admin/', include(admin.site.urls)),
+    url(r'^admin/', include(admin.site.urls)),
     url(r'^$', IndexView.as_view(), name='index'),
     url(r'^noticias/(?P<year>[\d]+)/$', news_archive, name='news_archive'),
     url(r'^noticias/$', news, name='news'),
@@ -22,5 +30,8 @@ urlpatterns = patterns('',
     url(r'^buscar-mas/(?P<filtro>\w+)/$', search_more, name='search_more'),
     url(r'^buscar/(?P<filtro>\w+)/$', search, name='search'),
     url(r'^buscar/$', search, name='search'),
+    url(r'^contactar/$', contact, name='contact'),
+    url(r'^opress-api/', include(router.urls)),
+    url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     url(r'^(?P<slug>[0-9A-Za-z-_.//]+)/$', static_page, name='static_page')
-)
+]
