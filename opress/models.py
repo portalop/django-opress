@@ -4,14 +4,15 @@ from __future__ import unicode_literals
 from django.utils.encoding import python_2_unicode_compatible
 from django.db import models
 from django.conf import settings
-#from django.core import urlresolvers
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext_lazy as _
-from subdomains.utils import reverse
+from subdomains.utils import reverse as s_reverse
+from django.core.urlresolvers import reverse
 from django.template.defaultfilters import date as _date
 from django.contrib.sites.models import Site
 from django.contrib.auth.models import User
 from django.contrib.contenttypes import fields
+from django.utils import timezone
 from datetime import datetime
 from photologue.fields import PhotoField
 from filebrowser.fields import FileBrowseField
@@ -19,7 +20,7 @@ from mptt.models import MPTTModel, TreeForeignKey
 from mptt.managers import TreeManager
 from sortedm2m.fields import SortedManyToManyField
 from taggit.managers import TaggableManager
-from taggit.models import TagBase, GenericTaggedItemBase
+from taggit.models import TagBase, GenericTaggedItemBase, CommonGenericTaggedItemBase, TaggedItemBase
 
 
 PAGES_ICON_SIZE_LABEL = getattr(settings, 'OPRESS_PAGES_ICON_SIZE_LABEL', '(110x110px)')
@@ -33,19 +34,22 @@ IMAGE_SIZES = getattr(settings, 'OPRESS_IMAGE_SIZES', {
     'bloque_timeline': ('bloque_timeline', '140x110px'),
     'bloque_ficha': ('bloque_ficha', '430px de ancho'),
     'bloque_ancho_completo': ('bloque_ancho_completo', '730x300px'),
-    'noticias_icono_portada': ('noticias_icono_portada', '300x187px'),
-    'noticias_icono_ennoticias': ('noticias_icono_ennoticias', '397x250px'),
-    'noticia_imagen': ('noticia_imagen', '730x300px'),
-    'noticias_relacionadas': ('noticias_relacionadas', '165x103px'),
+    'noticias_icono_portada': ('noticias_icono_portada', '140x140px'),
+    'noticia_imagen': ('noticia_imagen', '994x350px'),
+    'noticias_relacionadas': ('noticias_relacionadas', '190x190px'),
     'agenda_icono': ('agenda_icono', '100x100px'),
+    'agenda_imagen': ('agenda_imagen', '730x300px'),
     'portada_destacado': ('portada_destacado', '1040x356px'),
     'autor_foto': ('autor_foto', '90x90px'),
     'prensa_icono': ('prensa_icono', '200x120px'),
     'documento_icono': ('documento_icono', '300x187px'),
-    'bloque_icono': ('documento_icono', '300x187px'),
+    'bloque_icono': ('bloque_icono', '300x187px'),
     'blog_articulo_icono': ('blog_articulo_icono', '330x207px'),
     'autor_blog_foto': ('autor_blog_foto', '330x207px'),
     'autor_articulo_foto': ('autor_articulo_foto', '330x207px'),
+    'recurso_icono': ('recurso_icono', '140x140px'),
+    'blog_imagen': ('blog_imagen', u'360x240px'),
+    'otro_blog_imagen': ('otro_blog_imagen', u'152x140px'),
 })
 MENU_MAX_LEVEL = getattr(settings, 'OPRESS_MENU_MAX_LEVEL', 0)
 
@@ -79,9 +83,39 @@ MESSAGE_TYPE_CHOICES = (
     ('webmaster', _('Sobre la página web')),
 )
 
+BLOG_TYPE_CHOICES = (
+    (1, _('Blogs en dominicos.org')),
+    (2, _('Blogs en páginas dominicanas')),
+    (3, _('Otros blogs')),
+)
+
 DIAS_SEMANA = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']
 SIGLAS_SEMANA = ['L', 'M', 'X', 'J', 'V', 'S', 'D']
 MESES_ANYO = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
+
+RESOURCE_TYPE_CHOICES = (
+    ('', _('-- Seleccione un tipo de recurso --')),
+    #('formación', _('Formación (URL)')),
+    ('vídeo', _('Vídeo (Youtube)')),
+    ('audio', _('Audio (Soundcloud)')),
+    ('libro', _('Libro (URL)')),
+    ('resena', _('Reseña de libro')),
+    ('documento', _('Documento (URL)')),
+)
+
+class HierarchicalTag (MPTTModel, TagBase):
+    parent = TreeForeignKey('self', verbose_name="Pertenece a", null=True, blank=True, related_name='children')
+    class Meta:
+        verbose_name = 'etiqueta'
+        order_with_respect_to = 'parent'
+    class MPTTMeta:
+        order_insertion_by = ['name']
+
+class TaggedContentItem (CommonGenericTaggedItemBase):
+    tag = models.ForeignKey('HierarchicalTag', related_name='tags')
+    #content_type = models.ForeignKey(ContentType)
+    object_id = models.PositiveIntegerField()
+    #content_object = fields.GenericForeignKey('content_type', 'object_id')
 
 class Sitio(Site):
     db = models.CharField(max_length=100, null=True, blank=True)
@@ -107,7 +141,8 @@ class Pagina(MPTTModel):
     icono = PhotoField(image_size=IMAGE_SIZES['pagina_icono'][IMAGESIZE_NAME], verbose_name="Icono " + IMAGE_SIZES['pagina_icono'][IMAGESIZE_LABEL], blank=True, null=True, on_delete=models.SET_NULL, related_name='paginas_iconos_set')
     parent = TreeForeignKey('self', verbose_name="Pertenece a", null=True, blank=True, related_name='children')
     descripcion = models.TextField("Descripción", blank=True)
-    tags = TaggableManager('Etiquetas', blank=True)
+    #tags = TaggableManager('Etiquetas', blank=True)
+    tags = TaggableManager('Etiquetas', through=TaggedContentItem, blank=True)
     contenido = models.TextField(blank=True)
     in_menu = models.BooleanField("¿Está en el menú?", default=True)
     menu = models.CharField("Menú", blank=True, max_length=300)
@@ -116,12 +151,15 @@ class Pagina(MPTTModel):
     es_seccion = models.BooleanField("¿Es sección?", default=False)
     url = models.CharField("Url", max_length=1000, default='')
     tiene_menu_bloque = models.BooleanField("¿Tiene bloque de menú?", default=False)
+    head_title = models.CharField("Título para SEO", max_length=200, null=True, blank=True)
+    meta_description = models.CharField("META description para SEO", max_length=300, null=True, blank=True)
+
     objects = MenuManager()
     def get_admin_url(self):
         content_type = ContentType.objects.get_for_model(self.__class__)
         return reverse("admin:%s_%s_change" % (content_type.app_label, content_type.model), args=(self.id,))
     def get_absolute_url(self):
-        return reverse('opress.views.static_page', args=[self.url])
+        return reverse('opress:static_page', args=[self.get_url()])
     def get_url(self):
         url_ancestors = ''
         for ancestor in self.get_ancestors():
@@ -167,12 +205,13 @@ class Noticia(models.Model):
     slug = models.SlugField('url', unique=True)
     fecha = models.DateField('Fecha', default=datetime.now, blank=True, db_index=True)
     entradilla = models.TextField('Entradilla')
-    icono = PhotoField(image_size=IMAGE_SIZES['noticias_icono_ennoticias'][IMAGESIZE_NAME], verbose_name="Icono " + IMAGE_SIZES['noticias_icono_ennoticias'][IMAGESIZE_LABEL], on_delete=models.PROTECT, related_name='noticias_iconos_set')
-    imagen = PhotoField(image_size=IMAGE_SIZES['noticia_imagen'][IMAGESIZE_NAME], verbose_name="Imagen " + IMAGE_SIZES['noticia_imagen'][IMAGESIZE_LABEL], blank=True, null=True, on_delete=models.SET_NULL, related_name='noticias_imagenes_set')
-    tags = TaggableManager('Etiquetas', blank=True)
+    icono = PhotoField(image_size=IMAGE_SIZES['noticias_relacionadas'][IMAGESIZE_NAME], verbose_name="Icono " + IMAGE_SIZES['noticias_relacionadas'][IMAGESIZE_LABEL], on_delete=models.PROTECT, related_name='noticias_iconos_set')
+    imagen = PhotoField(image_size=IMAGE_SIZES['noticia_imagen'][IMAGESIZE_NAME], verbose_name="Imagen " + IMAGE_SIZES['noticia_imagen'][IMAGESIZE_LABEL], blank=True, null=True, on_delete=models.PROTECT, related_name='noticias_imagenes_set')
+    #tags = TaggableManager('Etiquetas', blank=True)
+    tags = TaggableManager('Etiquetas', through=TaggedContentItem, blank=True)
     contenido = models.TextField('Contenido')
     def get_absolute_url(self):
-        return reverse('opress.views.news_detail', args=[self.slug])
+        return reverse('opress:news_detail', args=[self.slug])
     def icono_img(self):
         if self.icono:
             return u'<img src="%s?%s" />' % (self.icono.get_admin_thumbnail_url(), datetime.now().time().microsecond)
@@ -190,10 +229,12 @@ class Agenda(models.Model):
     titulo = models.CharField("Título", max_length=300)
     slug = models.SlugField('url', unique=True)
     fecha_inicio = models.DateField('Fecha de inicio', db_index=True)
-    fecha_fin = models.DateField('Fecha de fin', null=True, blank=True, db_index=True)
+    fecha_fin = models.DateField('Fecha de fin', db_index=True)
     entradilla = models.TextField('Entradilla', null=True, blank=True)
-    icono = PhotoField(image_size=IMAGE_SIZES['agenda_icono'][IMAGESIZE_NAME], verbose_name="Icono " + IMAGE_SIZES['agenda_icono'][IMAGESIZE_LABEL], on_delete=models.SET_NULL, blank=True, null=True)
-    tags = TaggableManager('Etiquetas', blank=True)
+    icono = PhotoField(image_size=IMAGE_SIZES['agenda_icono'][IMAGESIZE_NAME], verbose_name="Icono " + IMAGE_SIZES['agenda_icono'][IMAGESIZE_LABEL], on_delete=models.PROTECT, blank=True, null=True, related_name='agenda_iconos_set')
+    imagen = PhotoField(image_size=IMAGE_SIZES['agenda_imagen'][IMAGESIZE_NAME], verbose_name="Imagen " + IMAGE_SIZES['agenda_imagen'][IMAGESIZE_LABEL], on_delete=models.PROTECT, blank=True, null=True, related_name='agenda_imagenes_set')
+    #tags = TaggableManager('Etiquetas', blank=True)
+    tags = TaggableManager('Etiquetas', through=TaggedContentItem, blank=True)
     contenido = models.TextField('Contenido', null=True, blank=True)
     se_anuncia = models.BooleanField("¿Se anuncia?", default=False)
     inicio_anuncio = models.DateField('Fecha de inicio del anuncio', null=True, blank=True, default=datetime.now)
@@ -209,7 +250,7 @@ class Agenda(models.Model):
     fecha_publicacion = models.DateField('Fecha de publicación', default=datetime.now, blank=True, db_index=True)
     localidad = TaggableManager('Localidad', blank=True, through=LocationTags)
     def get_absolute_url(self):
-        return reverse('opress.views.event_detail', args=[self.slug])
+        return reverse('opress:event_detail', args=[self.slug])
     def icono_img(self):
         if self.icono:
             return u'<img src="%s?%s" />' % (self.icono.get_admin_thumbnail_url(), datetime.now().time().microsecond)
@@ -225,6 +266,8 @@ class Agenda(models.Model):
                 return self.fecha_inicio.strftime("Del %-d ") + self.fecha_fin.strftime("al %-d de " + _date(self.fecha_inicio, "F") + " de %Y")
             else:
                 return self.fecha_inicio.strftime("Del %-d de " + _date(self.fecha_inicio, "F") + " de %Y ") + self.fecha_fin.strftime("al %-d de " + _date(self.fecha_fin, "F") + " de %Y")
+    def get_days(self):
+        return (self.fecha_fin - self.fecha_inicio).days
     def __str__(self):
         return self.titulo
     class Meta:
@@ -271,10 +314,15 @@ class Bloque(models.Model):
     se_hereda = models.BooleanField(default=False)
     grupo = models.CharField(max_length=100, null=True, blank=True)
     def get_paginas(self):
-        paginas_list = self.paginas_cabecera.all() | self.paginas_pie.all()
+        paginas_list = []
+        if self.paginas_cabecera:
+            paginas_list += [self.paginas_cabecera]
+        if self.paginas_pie:
+            paginas_list += [self.paginas_pie]
         if self.se_hereda:
             for pagina in paginas_list:
                 paginas_list = paginas_list | pagina.get_descendants(include_self==False)
+        return paginas_list
     def get_menu(self):
         if self.se_hereda:
             menu_bloque = self.paginas_cabecera.get_descendants(include_self=True).filter(in_menu=True)
@@ -337,6 +385,8 @@ class Destacado(models.Model):
     visible = models.BooleanField("Visible en la portada", default=True)
     pagina = models.ManyToManyField(Pagina, verbose_name="Páginas en que se muestra")
     fecha = models.DateField('Fecha de publicación', blank=True, null=True)
+    seccion = models.CharField("Sección", max_length=100, null=True, blank=True)
+    ventana_nueva = models.BooleanField("Se abre en ventana nueva", default=True)
     def __str__(self):
         return self.titulo
     class Meta:
@@ -351,7 +401,7 @@ class CategoriaDocumento(MPTTModel):
     def __str__(self):
         return self.nombre
     def get_absolute_url(self):
-        return reverse('opress.views.documents_archive', args=[self.get_url()])
+        return reverse('opress:documents_archive', args=[self.get_url()])
     def get_url(self):
         url_ancestors = ''
         for ancestor in self.get_ancestors():
@@ -376,7 +426,7 @@ class Documento(models.Model):
     def __str__(self):
         return self.nombre
     def get_absolute_url(self):
-        return reverse('document_detail', args=[self.get_url()])
+        return reverse('opress:document_detail', args=[self.get_url()])
     def get_url(self):
         return self.categoria.get_url() + '/' + self.slug
     class Meta:
@@ -386,14 +436,14 @@ class Documento(models.Model):
 class Boletin(models.Model):
     nombre = models.CharField("Nombre", max_length=300)
     fecha_inicio = models.DateField('Fecha de inicio', db_index=True)
-    fecha_fin = models.DateField('Fecha de fin', null=True, blank=True, db_index=True, default=datetime.today())
+    fecha_fin = models.DateField('Fecha de fin', null=True, blank=True, db_index=True, default=timezone.now)
     imagen = PhotoField(image_size=IMAGE_SIZES['portada_destacado'][IMAGESIZE_NAME], verbose_name="Imagen " + IMAGE_SIZES['portada_destacado'][IMAGESIZE_LABEL], blank=True, null=True, on_delete=models.SET_NULL)
     cabecera = models.TextField(blank=True)
     pie = models.TextField(blank=True)
     def __str__(self):
         return self.nombre
     def ver_boletin(self):
-        return "<a target='_blank' href='%s'>Generar boletín</a>" % reverse("generar_boletin", args=(self.id,))
+        return "<a target='_blank' href='%s'>Generar boletín</a>" % reverse("opress:generar_boletin", args=(self.id,))
     ver_boletin.short_description = 'Generar'
     ver_boletin.allow_tags = True
     class Meta:
@@ -476,9 +526,13 @@ class Autor(models.Model):
 class AutorBlog(Autor):
     email = models.EmailField(_('Correo electrónico'),)
     curriculum = models.TextField(_('Currículum'), blank=True)
-    foto = PhotoField(image_size=IMAGE_SIZES['autor_blog_foto'][IMAGESIZE_NAME], verbose_name="Foto " + IMAGE_SIZES['autor_blog_foto'][IMAGESIZE_LABEL], blank=True, null=True, on_delete=models.SET_NULL, related_name='%(class)s_fotos_set')
+    foto = PhotoField(image_size=IMAGE_SIZES['blog_imagen'][IMAGESIZE_NAME], verbose_name="Foto " + IMAGE_SIZES['blog_imagen'][IMAGESIZE_LABEL], blank=True, null=True, on_delete=models.SET_NULL, related_name='%(class)s_fotos_set')
     def __str__(self):
         return self.nombre
+    class Meta:
+        verbose_name = 'autor de blog'
+        verbose_name_plural = 'autores de blogs'
+        ordering = ['nombre']
 
 @python_2_unicode_compatible
 class AutorArticulo(Autor):
@@ -492,6 +546,7 @@ class Blog(models.Model):
     titulo = models.CharField(_('Título'), max_length=300)
     autor = models.ForeignKey(AutorBlog, verbose_name=_('Autor'))
     usuario = models.ForeignKey(User, verbose_name=_('Usuario del Kit'), null=True, blank=True)
+    subtitulo = models.TextField(_('Subtítulo'), null=True, blank=True)
     descripcion = models.TextField(_('Descripción'), null=True, blank=True)
     url = models.CharField(max_length=500)
     codigo_urchin = models.CharField(_('Código Urchin'), null=True, blank=True, max_length=30)
@@ -501,8 +556,22 @@ class Blog(models.Model):
     tiene_destacados = models.BooleanField("¿Tiene destacados?", default=False)
     gplus_profile = models.CharField("Enlace al perfil de Google+", max_length=500, null=True, blank=True)
     subdominio = models.CharField(max_length=500)
+    imagen = PhotoField(image_size=IMAGE_SIZES['blog_imagen'][IMAGESIZE_NAME], verbose_name="Imagen " + IMAGE_SIZES['blog_imagen'][IMAGESIZE_LABEL], blank=True, null=True, on_delete=models.SET_NULL, related_name='%(class)s_imagenes_set')
+    def get_absolute_url(self):
+        return s_reverse ('blog_index', subdomain=self.subdominio)
+    def imagen_img(self):
+        if self.imagen:
+            return u'<img src="%s?%s" />' % (self.imagen.get_admin_thumbnail_url(), datetime.now().time().microsecond)
+        else:
+            return "<em>(Sin imagen)</em>"
+    imagen_img.short_description = 'Imagen'
+    imagen_img.allow_tags = True
     def __str__(self):
         return self.titulo
+    class Meta:
+        permissions = (
+            ('admin_blogs', 'Can manage all blogs'),
+        )
 
 @python_2_unicode_compatible
 class SeccionBlog(models.Model):
@@ -517,27 +586,64 @@ class SeccionBlog(models.Model):
         ordering = ['nombre']
 
 @python_2_unicode_compatible
+class OtroBlog(models.Model):
+    titulo = models.CharField(_('Título'), max_length=300)
+    autor = models.CharField(_('Autor'), max_length=300)
+    tipo = tipo = models.PositiveIntegerField(_('Tipo de blog'), choices=BLOG_TYPE_CHOICES)
+    blog = models.ForeignKey(Blog, verbose_name=_('Blog'), blank=True, null=True)
+    descripcion = models.TextField(_('Descripción'), null=True, blank=True)
+    url = models.CharField(max_length=500)
+    imagen = PhotoField(image_size=IMAGE_SIZES['otro_blog_imagen'][IMAGESIZE_NAME], verbose_name="Imagen " + IMAGE_SIZES['otro_blog_imagen'][IMAGESIZE_LABEL], blank=True, null=True, on_delete=models.SET_NULL, related_name='%(class)s_imagenes_set')
+    rss = models.CharField(max_length=500, blank=True, null=True)
+    suscripcion_correo = models.CharField(max_length=1000, blank=True, null=True)
+    def imagen_img(self):
+        if self.imagen:
+            return u'<img src="%s?%s" />' % (self.imagen.get_admin_thumbnail_url(), datetime.now().time().microsecond)
+        else:
+            return "<em>(Sin imagen)</em>"
+    imagen_img.short_description = 'Imagen'
+    imagen_img.allow_tags = True
+    def __str__(self):
+        return self.titulo
+
+@python_2_unicode_compatible
+class OtroArticulo(models.Model):
+    blog = models.ForeignKey(OtroBlog, verbose_name=_('Blog'))
+    titulo = models.CharField(_('Título'), max_length=300)
+    subtitulo = models.CharField(_('Subtítulo'), max_length=3000, null=True, blank=True)
+    autor = models.CharField(_('Autor'), max_length=300, null=True, blank=True)
+    fecha = models.DateField('Fecha', null=True)
+    url = models.CharField(max_length=500)
+    guid = models.CharField(max_length=500)
+    imagen = models.CharField("Imagen (URL)", max_length=500, blank=True, null=True)
+    descripcion = models.TextField(_('Descripción'), null=True, blank=True)
+    def __str__(self):
+        return '[%s] %s' % (self.blog.titulo, self.titulo)
+
+@python_2_unicode_compatible
 class Articulo(models.Model):
     blog = models.ForeignKey(Blog, verbose_name=_('Blog'))
     titulo = models.CharField(_('Título'), max_length=300)
     slug = models.SlugField('url', unique=False)
-    subtitulo = models.CharField(_('Subtítulo'), max_length=3000)
+    subtitulo = models.CharField(_('Subtítulo'), max_length=3000, blank=True, null=True)
     autor = models.ForeignKey(AutorArticulo, verbose_name=_('Autor'), blank=True, null=True)
-    icono = PhotoField(image_size=IMAGE_SIZES['blog_articulo_icono'][IMAGESIZE_NAME], verbose_name="Icono " + IMAGE_SIZES['blog_articulo_icono'][IMAGESIZE_LABEL], blank=True, null=True, on_delete=models.SET_NULL, related_name='articulos_iconos_set')
+    icono = PhotoField(image_size=IMAGE_SIZES['blog_imagen'][IMAGESIZE_NAME], verbose_name="Imagen " + IMAGE_SIZES['blog_imagen'][IMAGESIZE_LABEL], blank=True, null=True, on_delete=models.SET_NULL, related_name='articulos_iconos_set')
     contenido = models.TextField(_('Contenido'))
     fecha = models.DateField('Fecha', default=datetime.now, db_index=True)
     inicio = models.DateField('Fecha de publicación', blank=True, null=True, db_index=True)
     seccion = models.ForeignKey(SeccionBlog, verbose_name=_('Sección'), blank=True, null=True)
+    es_portada = models.BooleanField("¿Aparece en la portada?", default=False)
+    es_destacado = models.BooleanField("¿Hay que destacarlo?", default=False)
     def get_absolute_url(self):
-        return reverse('blog_article', subdomain=self.blog.subdominio, kwargs={'section': self.seccion.slug if self.seccion else 'articulo', 'slug': self.slug})
+        return s_reverse('blog_article', subdomain=self.blog.subdominio, kwargs={'section': self.seccion.slug if self.seccion else 'articulos', 'slug': self.slug})
     def __str__(self):
-        return self.titulo
+        return '[%s] %s' % (self.blog.titulo, self.titulo)
     class Meta:
         verbose_name = 'Artículo'
 
 @python_2_unicode_compatible
 class AparicionPrensa(models.Model):
-    fecha = models.DateField('Fecha', db_index=True, default=datetime.today())
+    fecha = models.DateField('Fecha', db_index=True, default=timezone.now)
     titulo = models.CharField("Título", max_length=300)
     medio = models.CharField("Medio", max_length=300)
     enlace = models.CharField("Enlace (URL)", max_length=500, blank=True, null=True)
@@ -557,6 +663,8 @@ class ProveedorMultimedia(models.Model):
     nombre = models.CharField("Nombre", max_length=100)
     identificador = models.CharField("Identificador (ID)", max_length=500, blank=True, null=True)
     clave = models.CharField("Clave de la API", max_length=500, blank=True, null=True)
+    tipo = models.CharField("Tipo", max_length=100)
+    slug = models.SlugField("Slug", unique=True)
     def __str__(self):
         return self.nombre
     class Meta:
@@ -566,15 +674,60 @@ class ProveedorMultimedia(models.Model):
 @python_2_unicode_compatible
 class Multimedia(models.Model):
     proveedor = models.ForeignKey(ProveedorMultimedia, verbose_name=_('Proveedor de contenidos'))
-    fecha = models.DateField('Fecha', db_index=True, default=datetime.today())
+    fecha = models.DateField('Fecha', db_index=True, default=timezone.now)
     titulo = models.CharField("Título", max_length=300)
     identificador = models.CharField("Identificador (ID)", max_length=500)
     icono = models.CharField("Icono (URL)", max_length=500, blank=True, null=True)
     descripcion = models.TextField(_('Descripción'), null=True, blank=True)
-    duracion = models.CharField("Duración", max_length=500)
+    duracion = models.CharField("Duración", max_length=500, null=True, blank=True)
+    es_recurso = models.BooleanField("¿Es recurso?", default=False)
+    es_portada = models.BooleanField("¿Aparece en la portada (estudio/verdad)?", default=False)
+    tags = TaggableManager('Etiquetas', through=TaggedContentItem, blank=True)
+    def icono_img(self):
+        if self.icono:
+            return u'<img src="%s?%s" />' % (self.icono, datetime.now().time().microsecond)
+        else:
+            return "<em>(Sin icono)</em>"
+    icono_img.short_description = 'Icono'
+    icono_img.allow_tags = True
+    def get_resource(self):
+        self.tipo = self.proveedor.tipo
+        return self
+    def get_absolute_url(self):
+        if self.es_recurso:
+            return reverse('opress:recurso_multimedia', kwargs={'mtype': self.proveedor.slug, 'id': self.identificador})
+        else:
+            return reverse('opress:multimedia_detail', kwargs={'mtype': self.proveedor.slug, 'id': self.identificador})
+    def __str__(self):
+        return '[%s] %s' % (self.proveedor.nombre, self.titulo)
+    class Meta:
+        ordering = ['-fecha']
+        verbose_name = 'contenido multimedia'
+        verbose_name_plural = 'contenidos multimedia'
+
+@python_2_unicode_compatible
+class Recurso(models.Model):
+    tipo = models.CharField(_('Tipo de recurso'),
+                                        max_length=15,
+                                        choices=RESOURCE_TYPE_CHOICES)
+    fecha = models.DateField('Fecha', db_index=True, default=timezone.now)
+    titulo = models.CharField("Título", max_length=300)
+    slug = models.SlugField('url', unique=True)
+    articulo_blog = models.ForeignKey(Articulo, verbose_name=_('Artículo de blog'), blank=True, null=True)
+    multimedia = models.ForeignKey(Multimedia, verbose_name=_('Contenido multimedia'), blank=True, null=True)
+    enlace = models.CharField("Enlace (URL)", max_length=500, blank=True, null=True)
+    archivo = FileBrowseField("Archivo PDF", max_length=300, extensions=settings.FILEBROWSER_EXTENSIONS["Document"], blank=True, null=True)
+    icono = PhotoField(image_size=IMAGE_SIZES['recurso_icono'][IMAGESIZE_NAME], verbose_name="Icono " + IMAGE_SIZES['recurso_icono'][IMAGESIZE_LABEL])
+    descripcion = models.TextField(_('Descripción'), null=True, blank=True)
+    contenido = models.TextField(_('Contenido'), null=True, blank=True)
+    autor = models.CharField(_('Autor'), max_length=300, null=True, blank=True)
+    tags = TaggableManager('Etiquetas', through=TaggedContentItem, blank=True)
+    es_portada = models.BooleanField("¿Aparece en la portada?", default=False)
+    def get_absolute_url(self):
+        return reverse('opress:recurso', kwargs={'slug': self.slug})
     def __str__(self):
         return self.titulo
     class Meta:
         ordering = ['fecha']
-        verbose_name = 'contenido multimedia'
-        verbose_name_plural = 'contenidos multimedia'
+        verbose_name = 'recurso'
+        verbose_name_plural = 'recursos'

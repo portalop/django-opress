@@ -12,12 +12,16 @@ from django.contrib.admin.widgets import RelatedFieldWidgetWrapper
 from django.contrib.sites.models import Site
 from django.contrib.sites.admin import SiteAdmin
 from django.contrib.contenttypes.admin import GenericTabularInline
+from django.shortcuts import get_object_or_404
+from django.forms.models import ModelChoiceField
 from django_mptt_admin.admin import DjangoMpttAdmin
+from .models import *
 from mptt.forms import TreeNodeMultipleChoiceField
 from tinymce.widgets import TinyMCE
 from photologue.models import PhotoSize, Photo, Gallery
 from photologue.fields import PhotoFormField
-from .models import Sitio, Pagina, Bloque, Noticia, Agenda, Timeline, TimelineItem, FlickrUser, Documento, CategoriaDocumento, Destacado, Boletin, TipoMensaje, GoogleMap, PuntoGoogleMap, PublicacionSitio, AparicionPrensa, BLOCK_TYPE_CHOICES
+from taggit_labels.widgets import LabelWidget
+from taggit.forms import TagField
 
 def dimensiones(numero):
     if numero==0:
@@ -74,6 +78,7 @@ def customize_tinyMCE(opciones):
 
 class PaginaAdminForm(forms.ModelForm):
     contenido = forms.CharField(required=False, widget=TinyMCE(mce_attrs=customize_tinyMCE({'width': 980, 'height': 600})))
+    tags = TagField(required=False, widget=LabelWidget(model=HierarchicalTag, hierarchical=True))
     def __init__(self, *args, **kwargs):
         request = self.request
         super(PaginaAdminForm, self).__init__(*args,**kwargs)
@@ -110,12 +115,15 @@ class BloqueAdminForm(forms.ModelForm):
 
 class NoticiaAdminForm(forms.ModelForm):
     contenido = forms.CharField(widget=TinyMCE(mce_attrs=customize_tinyMCE({'width': 980, 'height': 600})))
+    tags = TagField(required=False, widget=LabelWidget(model=HierarchicalTag, hierarchical=True))
     def __init__(self, *args, **kwargs):
         super(NoticiaAdminForm, self).__init__(*args,**kwargs)
         init_gallerycon_settings()
 
 class AgendaAdminForm(forms.ModelForm):
     contenido = forms.CharField(widget=TinyMCE(mce_attrs=customize_tinyMCE({'width': 980, 'height': 600})))
+    tags = TagField(required=False, widget=LabelWidget(model=HierarchicalTag, hierarchical=True))
+    localidad = TagField(required=False, widget=LabelWidget(model=LocationTag, hierarchical=False))
     def __init__(self, *args, **kwargs):
         super(AgendaAdminForm, self).__init__(*args,**kwargs)
         init_gallerycon_settings()
@@ -138,6 +146,24 @@ class BoletinAdminForm(forms.ModelForm):
     pie = forms.CharField(required=False, widget=TinyMCE(mce_attrs=customize_tinyMCE({'width': 980, 'height': 600})))
     def __init__(self, *args, **kwargs):
         super(BoletinAdminForm, self).__init__(*args,**kwargs)
+        init_gallerycon_settings()
+
+class RecursoAdminForm(forms.ModelForm):
+    descripcion = forms.CharField(required=False, widget=TinyMCE(mce_attrs=customize_tinyMCE({'width': 980, 'height': 300})))
+    contenido = forms.CharField(required=False, widget=TinyMCE(mce_attrs=customize_tinyMCE({'width': 980, 'height': 800})))
+    tags = TagField(required=False, widget=LabelWidget(model=HierarchicalTag, hierarchical=True))
+    def __init__(self, *args, **kwargs):
+        super(RecursoAdminForm, self).__init__(*args,**kwargs)
+        init_gallerycon_settings()
+
+
+class MultimediaAdminForm(forms.ModelForm):
+    tags = TagField(required=False, widget=LabelWidget(model=HierarchicalTag, hierarchical=True))
+
+class ArticuloAdminForm(forms.ModelForm):
+    contenido = forms.CharField(widget=TinyMCE(mce_attrs=customize_tinyMCE({'width': 980, 'height': 600})))
+    def __init__(self, *args, **kwargs):
+        super(ArticuloAdminForm, self).__init__(*args,**kwargs)
         init_gallerycon_settings()
 
 class PublicacionSitioInline(GenericTabularInline):
@@ -194,7 +220,7 @@ class PaginaAdmin(DjangoMpttAdmin):
             'fields' : ()
         }),
         ('Configuración avanzada', {
-            'fields': (('in_menu', 'menu'), 'imagen_cabecera', 'template_url', 'es_seccion'),
+            'fields': (('in_menu', 'menu'), 'imagen_cabecera', 'template_url', 'es_seccion', 'head_title', 'meta_description'),
         })
     )
     form = PaginaAdminForm
@@ -214,6 +240,12 @@ class PaginaAdmin(DjangoMpttAdmin):
         js = [
             settings.STATIC_URL + 'grappelli/tinymce/jscripts/tiny_mce/tiny_mce.js',
         ]
+
+class AutorBlogAdminForm(forms.ModelForm):
+    curriculum = forms.CharField(widget=TinyMCE(mce_attrs=customize_tinyMCE({'width': 980, 'height': 600})))
+    def __init__(self, *args, **kwargs):
+        super(AutorBlogAdminForm, self).__init__(*args,**kwargs)
+        init_gallerycon_settings()
 
 class DestacadoAdmin(admin.ModelAdmin):
     model = Destacado
@@ -269,10 +301,10 @@ class NoticiaAdmin(admin.ModelAdmin):
         ]
 
 class AgendaAdmin(admin.ModelAdmin):
-    search_fields = ['titulo', 'entradilla', 'fecha_inicio']
+    search_fields = ['titulo', 'entradilla', 'fecha_inicio', 'seccion']
     list_display = ('icono_img', 'fecha_inicio', 'fecha_fin', 'titulo', 'entradilla')
     list_display_links = ('titulo',)
-    fields = ('titulo', 'slug', 'fecha_inicio', 'fecha_fin', 'entradilla', 'icono', 'tags', 'contenido', ('se_anuncia', 'inicio_anuncio', 'fin_anuncio',), 'es_periodico', ('lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo'), 'localidad')
+    fields = ('titulo', 'slug', 'fecha_inicio', 'fecha_fin', 'entradilla', 'icono', 'imagen', 'tags', 'contenido', ('se_anuncia', 'inicio_anuncio', 'fin_anuncio',), 'es_periodico', ('lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo'), 'localidad')
     prepopulated_fields = {'slug': ('titulo',),}
     form = AgendaAdminForm
 
@@ -330,6 +362,135 @@ class PublicacionSitioAdmin(admin.ModelAdmin):
         'generic': [['content_type', 'object_id']],
     }
 
+class MultimediaAdmin(admin.ModelAdmin):
+    search_fields = ['titulo', 'descripcion', 'fecha']
+    list_display = ('proveedor', 'icono_img', 'fecha', 'titulo', 'descripcion', 'es_recurso', 'es_portada')
+    list_display_links = ('titulo',)
+    fields = ('proveedor', 'titulo', 'fecha', 'descripcion', 'icono', 'identificador', 'duracion', 'es_recurso', 'es_portada', 'tags')
+    form = MultimediaAdminForm
+
+    class Media:
+        js = [
+            settings.STATIC_URL + 'grappelli/tinymce/jscripts/tiny_mce/tiny_mce.js',
+        ]
+
+class RecursoAdmin(admin.ModelAdmin):
+    search_fields = ['titulo', 'descripcion', 'autor']
+    list_display = ('fecha', 'titulo', 'tipo', 'es_portada')
+    list_display_links = ('titulo',)
+    fields = ('tipo', 'titulo', 'slug', 'fecha', 'icono', 'tags', 'descripcion', 'autor', 'articulo_blog', 'multimedia', 'enlace', 'archivo', 'contenido', 'es_portada')
+    #readonly_fields = ('fecha', )
+    prepopulated_fields = {'slug': ('titulo',)}
+    form = RecursoAdminForm
+    def get_form(self, request, obj=None, **kwargs):
+        form = super(RecursoAdmin, self).get_form(request, obj, **kwargs)
+        form.base_fields['articulo_blog'].queryset = Articulo.objects.all().order_by('-fecha')
+        form.base_fields['multimedia'].queryset = Multimedia.objects.all().order_by('-fecha')
+        return form
+
+    class Media:
+        js = [
+            settings.STATIC_URL + 'grappelli/tinymce/jscripts/tiny_mce/tiny_mce.js',
+        ]
+
+class EtiquetaAdmin(DjangoMpttAdmin):
+    tree_auto_open = 1
+    list_display = ('name',)
+
+class BlogAdmin(admin.ModelAdmin):
+    search_fields = ['titulo', 'subtitulo', 'descripcion']
+    list_display = ('titulo', 'subtitulo', 'url', 'autor', 'imagen_img')
+    list_display_links = ('titulo',)
+    fields = ('titulo', 'subtitulo', 'descripcion', 'url', 'codigo_urchin', 'gplus_profile', 'imagen', 'usuario', 'autor', 'subdominio', 'tiene_categorias', 'es_colectivo', 'multiidioma', 'tiene_destacados')
+
+
+class AutorBlogAdmin(admin.ModelAdmin):
+    list_display = ('nombre', 'email')
+    fields = ('nombre', 'email', 'curriculum', 'foto')
+    form = AutorBlogAdminForm
+
+    class Media:
+        js = [
+            settings.STATIC_URL + 'grappelli/tinymce/jscripts/tiny_mce/tiny_mce.js',
+        ]
+
+class ArticuloAdmin(admin.ModelAdmin):
+    search_fields = ['titulo', 'blog__titulo', 'subtitulo', 'autor__nombre', 'autor__apellidos']
+    list_display = ('blog', 'seccion', 'titulo', 'subtitulo', 'autor', 'icono', 'fecha')
+    list_display_links = ('titulo',)
+    fields = ('blog', 'titulo', 'slug', 'subtitulo', 'autor', 'icono', 'contenido', 'fecha', 'inicio', 'seccion')
+    readonly_fields = ('fecha', )
+    prepopulated_fields = {'slug': ('titulo',)}
+    form = ArticuloAdminForm
+
+    def get_form(self, request, obj=None, **kwargs):
+        excluidos = ()
+        incluidos = ('blog', 'titulo', 'slug', 'subtitulo', 'autor', 'icono', 'contenido', 'fecha', 'inicio', 'seccion')
+        if request.user.has_perm('can_admin_blogs'):
+            incluidos += ('es_portada', 'es_destacado')
+        if not request.user.has_perm('can_admin_blogs'):
+            blog = get_object_or_404(Blog, usuario=request.user)
+            if not blog.es_colectivo:
+                excluidos += ('subtitulo', 'autor')
+            if not blog.tiene_categorias:
+                excluidos += ('seccion',)
+        self.exclude = excluidos
+        self.fields = tuple(f for f in incluidos if f not in excluidos)
+        form = super(ArticuloAdmin, self).get_form(request, obj=None, **kwargs)
+        #if not request.user.has_perm('can_admin_blogs'):
+        #    form.base_fields['blog'].initial = blog
+        #    form.base_fields['blog'].disabled = True
+        #    raise(TypeError, '[blog: %s]' % blog)
+        return form
+
+    def changelist_view(self, request, extra_context=None):
+        excluidos = ()
+        lista_campos = ('blog', 'seccion', 'titulo', 'subtitulo', 'autor', 'icono', 'fecha')
+        if request.user.has_perm('can_admin_blogs'):
+            lista_campos += ('es_portada', 'es_destacado')
+        if not request.user.has_perm('can_admin_blogs'):
+            blog = get_object_or_404(Blog, usuario=request.user)
+            if not blog.es_colectivo:
+                excluidos += ('subtitulo', 'autor')
+            if not blog.tiene_categorias:
+                excluidos += ('seccion',)
+        self.list_display = tuple(f for f in lista_campos if f not in excluidos)
+        return super(ArticuloAdmin, self).changelist_view(request, extra_context)
+
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == 'blog':
+            if request.user.has_perm('can_admin_blogs'):
+                queryset = Blog.objects.all()
+                return super(ArticuloAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
+            else:
+                queryset = Blog.objects.filter(usuario=request.user)
+                return ModelChoiceField(queryset, initial=get_object_or_404(Blog, usuario=request.user))
+        else:
+            return super(ArticuloAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
+
+    # def get_readonly_fields(self, request, obj=None):
+    #     fields = super(ArticuloAdmin, self).get_readonly_fields(request, obj)
+    #     if not request.user.has_perm('can_admin_blogs'):
+    #         fields += ('blog',)
+    #     return fields
+
+    def get_queryset(self, request):
+        qs = super(ArticuloAdmin, self).get_queryset(request)
+        if request.user.has_perm('opress.admin_blogs'):
+            return qs
+        return qs.filter(blog__usuario=request.user)
+
+    class Media:
+        js = [
+            settings.STATIC_URL + 'grappelli/tinymce/jscripts/tiny_mce/tiny_mce.js',
+        ]
+
+class OtroBlogAdmin(admin.ModelAdmin):
+    search_fields = ['titulo', 'autor', 'descripcion']
+    list_display = ('titulo', 'tipo', 'url', 'autor', 'imagen_img')
+    list_display_links = ('titulo',)
+    fields = ('tipo', 'titulo', 'autor', 'descripcion', 'url', 'imagen', 'blog', 'rss', 'suscripcion_correo')
+
 
 admin.site.unregister(Site)
 admin.site.register(Sitio, SitioAdmin)
@@ -349,3 +510,11 @@ admin.site.register(AparicionPrensa, AparicionPrensaAdmin)
 admin.site.register(TipoMensaje)
 admin.site.register(GoogleMap)
 admin.site.register(PuntoGoogleMap)
+admin.site.register(Multimedia, MultimediaAdmin)
+admin.site.register(Recurso, RecursoAdmin)
+admin.site.register(HierarchicalTag, EtiquetaAdmin)
+admin.site.register(Blog, BlogAdmin)
+admin.site.register(AutorBlog, AutorBlogAdmin)
+admin.site.register(Articulo, ArticuloAdmin)
+admin.site.register(OtroBlog, OtroBlogAdmin)
+admin.site.register(LocationTag)

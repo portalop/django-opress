@@ -16,6 +16,7 @@ setup(
     url='http://www.dominicos.org/',
     author='Oficina Internet Dominicos',
     author_email='portalop@dominicos.org',
+    include_package_data=True,
     package_data={
         'opress': [
             'static/opress/js/*.js',
