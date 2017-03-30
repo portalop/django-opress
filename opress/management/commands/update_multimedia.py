@@ -75,13 +75,13 @@ class Command(BaseCommand):
                 ).execute()
                 for video in videos_list_response['items']:
                     youtube_video, creado = Multimedia.objects.get_or_create(identificador=video['id'], proveedor=proveedor_youtube)
-                    if creado or youtube_video.titulo != video['snippet']['title'] or youtube_video.descripcion != video['snippet']['description'] or youtube_video.duracion != self.get_youtube_duration(video['contentDetails']['duration']) or youtube_video.icono != video['snippet']['thumbnails']['high']['url']:
-                        print '%s (%s)' % (video['snippet']['title'], video['contentDetails']['duration'])
+                    if creado: # or youtube_video.titulo != video['snippet']['title'] or youtube_video.descripcion != video['snippet']['description'] or youtube_video.duracion != self.get_youtube_duration(video['contentDetails']['duration']) or youtube_video.icono != video['snippet']['thumbnails']['high']['url']:
+                        print(u' '.join((video['snippet']['title'], video['contentDetails']['duration'])).encode('utf-8'))
                         youtube_video.identificador = video['id']
-                        youtube_video.titulo = video['snippet']['title']
-                        youtube_video.descripcion = video['snippet']['description']
+                        youtube_video.titulo = video['snippet']['title'].encode('utf-8', 'replace')
+                        youtube_video.descripcion = video['snippet']['description'].encode('utf-8', 'replace')
                         youtube_video.duracion = self.get_youtube_duration(video['contentDetails']['duration'])
-                        youtube_video.icono = video['snippet']['thumbnails']['high']['url']
+                        youtube_video.icono = video['snippet']['thumbnails']['medium']['url']
                         youtube_video.fecha = dateparse.parse_datetime(video['snippet']['publishedAt'])
                         youtube_video.save()
 
@@ -92,7 +92,7 @@ class Command(BaseCommand):
         for album in user.getPhotosets()[:num_albumes]:
             flickr_album, creado = Multimedia.objects.get_or_create(identificador=album.id, proveedor=proveedor_flickr)
             fecha = date.fromtimestamp(int(album['date_create']))
-            if creado or flickr_album.titulo != album.title or flickr_album.descripcion != album.description or flickr_album.fecha != fecha:
+            if creado: # or flickr_album.titulo != album.title or flickr_album.descripcion != album.description or flickr_album.fecha != fecha:
                 flickr_album.titulo = album.title
                 flickr_album.icono = Photo(id=album['primary']).getSizes()['Small 320']['source']
                 flickr_album.descripcion = album.description
@@ -106,7 +106,7 @@ class Command(BaseCommand):
         for track in tracks:
             soundcloud_track, creado = Multimedia.objects.get_or_create(identificador=track.id, proveedor=proveedor_soundcloud)
             fecha = datetime.strptime(track.created_at[:-6], '%Y/%m/%d %H:%M:%S')
-            if creado or soundcloud_track.titulo != track.title or soundcloud_track.descripcion != track.description or soundcloud_track.fecha != fecha or soundcloud_track.duracion != self.get_soundcloud_duration(track.duration):
+            if creado: # or soundcloud_track.titulo != track.title or soundcloud_track.descripcion != track.description or soundcloud_track.fecha != fecha or soundcloud_track.duracion != self.get_soundcloud_duration(track.duration):
                 soundcloud_track.titulo = track.title
                 soundcloud_track.descripcion = track.description
                 soundcloud_track.fecha = fecha
