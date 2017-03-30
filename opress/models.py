@@ -316,9 +316,9 @@ class Bloque(models.Model):
     def get_paginas(self):
         paginas_list = []
         if self.paginas_cabecera:
-            paginas_list += self.paginas_cabecera
+            paginas_list += [self.paginas_cabecera]
         if self.paginas_pie:
-            paginas_list += self.paginas_pie
+            paginas_list += [self.paginas_pie]
         if self.se_hereda:
             for pagina in paginas_list:
                 paginas_list = paginas_list | pagina.get_descendants(include_self==False)
@@ -714,6 +714,7 @@ class Recurso(models.Model):
     titulo = models.CharField("Título", max_length=300)
     slug = models.SlugField('url', unique=True)
     articulo_blog = models.ForeignKey(Articulo, verbose_name=_('Artículo de blog'), blank=True, null=True)
+    isbn = models.CharField("ISBN", max_length=30,  blank=True, null=True)
     multimedia = models.ForeignKey(Multimedia, verbose_name=_('Contenido multimedia'), blank=True, null=True)
     enlace = models.CharField("Enlace (URL)", max_length=500, blank=True, null=True)
     archivo = FileBrowseField("Archivo PDF", max_length=300, extensions=settings.FILEBROWSER_EXTENSIONS["Document"], blank=True, null=True)

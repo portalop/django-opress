@@ -378,7 +378,7 @@ class RecursoAdmin(admin.ModelAdmin):
     search_fields = ['titulo', 'descripcion', 'autor']
     list_display = ('fecha', 'titulo', 'tipo', 'es_portada')
     list_display_links = ('titulo',)
-    fields = ('tipo', 'titulo', 'slug', 'fecha', 'icono', 'tags', 'descripcion', 'autor', 'articulo_blog', 'multimedia', 'enlace', 'archivo', 'contenido', 'es_portada')
+    fields = ('tipo', 'titulo', 'slug', 'fecha', 'icono', 'tags', 'descripcion', 'autor', 'articulo_blog', 'multimedia', 'isbn', 'enlace', 'archivo', 'contenido', 'es_portada')
     #readonly_fields = ('fecha', )
     prepopulated_fields = {'slug': ('titulo',)}
     form = RecursoAdminForm
