@@ -304,7 +304,7 @@ class AgendaAdmin(admin.ModelAdmin):
     search_fields = ['titulo', 'entradilla', 'fecha_inicio', 'seccion']
     list_display = ('icono_img', 'fecha_inicio', 'fecha_fin', 'titulo', 'entradilla')
     list_display_links = ('titulo',)
-    fields = ('titulo', 'slug', 'fecha_inicio', 'fecha_fin', 'entradilla', 'icono', 'imagen', 'tags', 'contenido', ('se_anuncia', 'inicio_anuncio', 'fin_anuncio',), 'es_periodico', ('lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo'), 'localidad')
+    fields = ('titulo', 'slug', 'fecha_inicio', 'fecha_fin', 'entradilla', 'icono', 'imagen', 'tags', 'contenido', ('se_anuncia', 'inicio_anuncio', 'fin_anuncio',), 'es_periodico', ('lunes', 'martes', 'miercoles', 'jueves'), ('viernes', 'sabado', 'domingo'), 'localidad')
     prepopulated_fields = {'slug': ('titulo',),}
     form = AgendaAdminForm
 
