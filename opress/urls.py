@@ -7,7 +7,8 @@ from rest_framework import routers
 router = routers.DefaultRouter()
 router.register(r'users', UserViewSet)
 router.register(r'groups', GroupViewSet)
-router.register(r'noticias', NoticiaViewSet)
+router.register(r'noticias', NoticiaViewSet, 'noticia')
+router.register(r'agendas', AgendaViewSet, 'agenda')
 router.register(r'photos', PhotoViewSet)
 router.register(r'sites', SiteViewSet)
 
