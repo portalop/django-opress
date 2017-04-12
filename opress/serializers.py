@@ -13,18 +13,14 @@ from bs4 import BeautifulSoup
 from io import BytesIO
 import os
 import logging
-import urllib
+import requests
 import cStringIO
-import ssl
 
 
 def get_serialized_image(url):
-    context = ssl.SSLContext(ssl.PROTOCOL_TLSv1)
-    context.verify_mode = ssl.CERT_NONE
-    context.check_hostname = False
-    result = urllib.urlopen(url, context=context)
+    result = requests.get(url, verify=False)
     name = os.path.basename(url)
-    file = File(BytesIO(result.read()))
+    file = File(BytesIO(result.content))
     return (name, file)
 
 
@@ -60,13 +56,10 @@ class PhotoSerializer(serializers.ModelSerializer):
     image = serializers.URLField()
 
     def validate_image(self, value):
-        context = ssl.SSLContext(ssl.PROTOCOL_TLSv1)
-        context.verify_mode = ssl.CERT_NONE
-        context.check_hostname = False
-        a = urllib.urlopen(value, context=context)
-        if a.getcode() != 200:
+        a = requests.get(value, verify=False)
+        if a.status_code != 200:
             raise serializers.ValidationError('The url is wrong.')
-        file = cStringIO.StringIO(a.read())
+        file = cStringIO.StringIO(a.content)
         try:
             img = Image.open(file)
             img.close()
