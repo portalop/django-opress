@@ -19,7 +19,9 @@ import ssl
 
 
 def get_serialized_image(url):
-    context = ssl._create_unverified_context()
+    context = ssl.SSLContext(ssl.PROTOCOL_TLSv1)
+    context.verify_mode = ssl.CERT_NONE
+    context.check_hostname = False
     result = urllib.urlopen(url, context=context)
     name = os.path.basename(url)
     file = File(BytesIO(result.read()))
@@ -58,7 +60,9 @@ class PhotoSerializer(serializers.ModelSerializer):
     image = serializers.URLField()
 
     def validate_image(self, value):
-        context = ssl._create_unverified_context()
+        context = ssl.SSLContext(ssl.PROTOCOL_TLSv1)
+        context.verify_mode = ssl.CERT_NONE
+        context.check_hostname = False
         a = urllib.urlopen(value, context=context)
         if a.getcode() != 200:
             raise serializers.ValidationError('The url is wrong.')
