@@ -234,7 +234,7 @@ class AgendaSerializer(TaggitSerializer, serializers.ModelSerializer):
                 img['src'] = settings.MY_DOMAIN + img['src']
         representation['contenido'] = str(contenido)
         if not representation['fecha_publicacion']:
-            representation['fecha_publicacion'] = date.today()
+            representation['fecha_publicacion'] = str(date.today())
         return representation
 
     class Meta:
