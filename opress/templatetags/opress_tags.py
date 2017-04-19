@@ -10,3 +10,7 @@ def mes(value):
 @register.filter
 def dia_semana(value):
     return DIAS_SEMANA[value.weekday()]
+
+@register.filter
+def comillas(value):
+    return value.replace('"', "'")
