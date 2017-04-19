@@ -59,6 +59,12 @@ class SiteSerializer(serializers.ModelSerializer):
 class PhotoSerializer(serializers.ModelSerializer):
     image = serializers.URLField()
 
+    def validate_title(self, value):
+        return value
+
+    def validate_slug(self, value):
+        return value
+
     def validate_image(self, value):
         a = requests.get(value, verify=False)
         if a.status_code != 200:
