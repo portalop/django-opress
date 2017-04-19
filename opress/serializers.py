@@ -57,8 +57,6 @@ class SiteSerializer(serializers.ModelSerializer):
 
 
 class PhotoSerializer(serializers.ModelSerializer):
-    title = serializers.CharField(max_length=100, unique=False)
-    slug = serializers.CharField(max_length=100, unique=False)
     image = serializers.URLField()
 
     def validate_image(self, value):
@@ -81,6 +79,7 @@ class PhotoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Photo
         fields = ('title', 'slug', 'caption', 'image', 'date_added', 'date_taken', 'view_count', 'crop_from', 'effect', 'is_public', 'sites')
+        validators = []
 
 
 class FlickrUserSerializer(serializers.ModelSerializer):
