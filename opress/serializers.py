@@ -25,12 +25,15 @@ def get_serialized_image(url):
 
 
 def get_image_from_url(data):
-    url = data.pop('image', None)
-    name, file = get_serialized_image(url)
-    del data['sites']
-    image = Photo(**data)
-    image.image.save(name, file, save=True)
-    image.save()
+    try:
+        image = Photo.objects.get(slug=data['slug'])
+    except Photo.DoesNotExist:
+        url = data.pop('image', None)
+        name, file = get_serialized_image(url)
+        del data['sites']
+        image = Photo(**data)
+        image.image.save(name, file, save=True)
+        image.save()
     return image
 
 
