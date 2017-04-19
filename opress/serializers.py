@@ -57,13 +57,9 @@ class SiteSerializer(serializers.ModelSerializer):
 
 
 class PhotoSerializer(serializers.ModelSerializer):
+    title = serializers.CharField(max_length=100, unique=False)
+    slug = serializers.CharField(max_length=100, unique=False)
     image = serializers.URLField()
-
-    def validate_title(self, value):
-        return value
-
-    def validate_slug(self, value):
-        return value
 
     def validate_image(self, value):
         a = requests.get(value, verify=False)
