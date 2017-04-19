@@ -233,12 +233,9 @@ class AgendaSerializer(TaggitSerializer, serializers.ModelSerializer):
             if not img['src'].startswith('http'):
                 img['src'] = settings.MY_DOMAIN + img['src']
         representation['contenido'] = str(contenido)
+        if not representation['fecha_publicacion']:
+            representation['fecha_publicacion'] = date.today()
         return representation
-
-    def validate_fecha_publicacion(self, value):
-        if not value:
-            return date.today()
-        return value
 
     class Meta:
         model = Agenda
