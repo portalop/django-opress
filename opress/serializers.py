@@ -213,8 +213,6 @@ class AgendaSerializer(TaggitSerializer, serializers.ModelSerializer):
         logger.debug("datos validados: %s" % validated_data)
         imagen_data = validated_data.pop('imagen', None)
         icono_data = validated_data.pop('icono', None)
-        if not validated_data['fecha_publicacion']:
-            validated_data['fecha_publicacion'] = date.today()
         icono = None
         imagen = None
         if icono_data:
@@ -236,6 +234,11 @@ class AgendaSerializer(TaggitSerializer, serializers.ModelSerializer):
                 img['src'] = settings.MY_DOMAIN + img['src']
         representation['contenido'] = str(contenido)
         return representation
+
+    def validate_fecha_publicacion(self, value):
+        if not value:
+            return date.today()
+        return value
 
     class Meta:
         model = Agenda
