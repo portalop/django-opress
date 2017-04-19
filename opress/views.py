@@ -294,7 +294,8 @@ def search(request, filtro=""):
     found_news = None
     found_events = None
     found_documents = None
-    last_entry = {'pages': False, 'news': False, 'events': False, 'documents': False}
+    found_resources = None
+    last_entry = {'pages': False, 'news': False, 'events': False, 'documents': False, 'resources': False}
     if filtro == '':
         num_results = 5
     else:
@@ -313,12 +314,23 @@ def search(request, filtro=""):
             entry_query = get_query(query_string, ['titulo', 'entradilla', 'contenido'])
             found_events = Agenda.objects.filter(entry_query)[:num_results]
             last_entry['events'] = not Agenda.objects.filter(entry_query)[num_results + 1:].exists()
+        if filtro == 'recurso' or filtro == '':
+            query_resource = get_query(query_string, ['titulo', 'descripcion', 'contenido', 'isbn', 'autor'])
+            query_multimedia = get_query(query_string, ['titulo', 'descripcion'])
+            filtros_or = {
+                'Recurso': query_resource,
+                'Multimedia': query_multimedia
+            }
+            found_resources = get_resources_multi(filtros_or=filtros_or)
+            if len(found_resources) > num_results:
+                last_entry['resources'] = True
+            found_resources = found_resources[:num_results]
         if filtro == 'documento' or filtro == '':
             entry_query = get_query(query_string, ['nombre', 'descripcion'])
             found_documents = Documento.objects.filter(entry_query)[:num_results]
             last_entry['documents'] = not Documento.objects.filter(entry_query)[num_results + 1:].exists()
-    found_entries = {'pages': found_pages, 'news': found_news, 'events': found_events, 'documents': found_documents}
-    return render(request, 'opress/search.html', {'pagina': pagina_buscar, 'arbol_paginas': Pagina.objects.get_menu(), 'filtro': filtro, 'query_string': query_string, 'found_entries': found_entries, 'page_size': num_results, 'last_entry': last_entry})
+    found_entries = {'pages': found_pages, 'news': found_news, 'events': found_events, 'documents': found_documents, 'resources': found_resources}
+    return render(request, 'opress/search.html', {'pagina': pagina_buscar, 'arbol_paginas': Pagina.objects.get_menu(), 'seccion': pagina_buscar, 'filtro': filtro, 'query_string': query_string, 'found_entries': found_entries, 'page_size': num_results, 'last_entry': last_entry})
 
 
 def search_more(request, filtro=""):
@@ -327,7 +339,8 @@ def search_more(request, filtro=""):
     found_news = None
     found_events = None
     found_documents = None
-    last_entry = {'pages': False, 'news': False, 'events': False, 'documents': False}
+    found_resources = None
+    last_entry = {'pages': False, 'news': False, 'events': False, 'documents': False, 'resources': False}
     if ('q' in request.GET) and request.GET['q'].strip():
         query_string = request.GET['q']
         offset = int(request.GET['offset'])
@@ -344,11 +357,22 @@ def search_more(request, filtro=""):
             entry_query = get_query(query_string, ['titulo', 'entradilla', 'contenido'])
             found_events = Agenda.objects.filter(entry_query)[offset:last]
             last_entry['events'] = not Agenda.objects.filter(entry_query)[last + 1:].exists()
+        if filtro == 'recurso':
+            query_resource = get_query(query_string, ['titulo', 'descripcion', 'contenido', 'isbn', 'autor'])
+            query_multimedia = get_query(query_string, ['titulo', 'descripcion'])
+            filtros_or = {
+                'Recurso': query_resource,
+                'Multimedia': query_multimedia
+            }
+            found_resources = get_resources_multi(filtros_or=filtros_or)
+            if len(found_resources) > last:
+                last_entry['resources'] = True
+            found_resources = found_resources[offset:last]
         if filtro == 'documento':
             entry_query = get_query(query_string, ['nombre', 'descripcion'])
             found_documents = Documento.objects.filter(entry_query)[offset:last]
             last_entry['documents'] = not Documento.objects.filter(entry_query)[last + 1:].exists()
-    found_entries = {'pages': found_pages, 'news': found_news, 'events': found_events, 'documents': found_documents}
+    found_entries = {'pages': found_pages, 'news': found_news, 'events': found_events, 'documents': found_documents, 'resources': found_resources}
     return render(request, 'opress/search_more.html', {'filtro_mas': filtro, 'found_entries': found_entries, 'last_entry': last_entry})
 
 
@@ -517,7 +541,7 @@ class PhotoViewSet(viewsets.ModelViewSet):
 
 
 def get_resources_multi(limit=None, filtros={}, filtros_or={'Recurso': (), 'Multimedia': ()}):
-    resource_list = Recurso.objects.select_related('icono').filter(*filtros_or['Recurso'], fecha__lte=datetime.now(), **filtros).order_by('-fecha').distinct()
+    resource_list = Recurso.objects.select_related('icono').filter(filtros_or['Recurso'], fecha__lte=datetime.now(), **filtros).order_by('-fecha').distinct()
     if 'tipo' in filtros:
         filtros['proveedor__tipo'] = filtros['tipo']
         del filtros['tipo']
@@ -527,7 +551,7 @@ def get_resources_multi(limit=None, filtros={}, filtros_or={'Recurso': (), 'Mult
     # for key in filtros_or:
     #     if key not in [f.name for f in Multimedia._meta.get_fields()]:
     #         del filtros_or[key]
-    multimedia_list = Multimedia.objects.filter(*filtros_or['Multimedia'], es_recurso=True, **filtros).order_by('-fecha').distinct()
+    multimedia_list = Multimedia.objects.filter(filtros_or['Multimedia'], es_recurso=True, **filtros).order_by('-fecha').distinct()
     if limit:
         resource_list = resource_list[:limit]
         multimedia_list = multimedia_list[:limit]
@@ -591,11 +615,13 @@ class RecursosArchivoView(View):
             filtros['tipo'] = mtype
             mtype = {'video': 'Vídeo', 'audio': 'Audio', 'documento': 'Documento', 'libro': 'Libro', 'resena': 'Reseña'}.get(mtype, None)
         q = request.GET.get('q')
+        filtros_or = {
+            'Recurso': Q(),
+            'Multimedia': Q()
+        }
         if q:
-            filtros_or = {
-                'Recurso': (Q(titulo__icontains=q) | Q(descripcion__icontains=q) | Q(contenido__icontains=q) | Q(autor__icontains=q),),
-                'Multimedia': (Q(titulo__icontains=q) | Q(descripcion__icontains=q),)
-            }
+            filtros_or['Recurso'] = get_query(q, ['titulo', 'descripcion', 'contenido', 'isbn', 'autor'])
+            filtros_or['Multimedia'] = get_query(q, ['titulo', 'descripcion'])
             # resource_list = resource_list.filter(Q(titulo__icontains=q) | Q(descripcion__icontains=q) | Q(contenido__icontains=q) | Q(autor__icontains=q))
         resource_list = get_resources_multi(filtros=filtros, filtros_or=filtros_or)
         resource_list, paginator, pagination_link = get_pagination(resource_list, request)
@@ -624,7 +650,7 @@ class RecursoView(View):
             recurso = get_object_or_404(Multimedia, proveedor__slug=mtype, identificador=id).get_resource()
         resource_list = [obj if type(obj) is Recurso else obj.get_resource() for obj in recurso.tags.similar_objects() if type(obj) is Recurso or type(obj) is Multimedia]
         resource_list = sorted([obj for obj in resource_list if obj.fecha <= date.today()], key=attrgetter('fecha'), reverse=True)
-        resource_list = resource_list or get_resources_multi(filtros={}, filtros_or={'Recurso': (), 'Multimedia': ()})
+        resource_list = resource_list or get_resources_multi(filtros={}, filtros_or={'Recurso': Q(), 'Multimedia': Q()})
         try:
             resource_list.remove(recurso)
         except ValueError:

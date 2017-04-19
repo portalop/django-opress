@@ -859,4 +859,3 @@ class Recurso(models.Model):
         ordering = ['fecha']
         verbose_name = 'recurso'
         verbose_name_plural = 'recursos'
-
