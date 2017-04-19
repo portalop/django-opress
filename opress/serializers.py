@@ -11,6 +11,7 @@ from taggit_serializer.serializers import (TagListSerializerField,
 from PIL import Image
 from bs4 import BeautifulSoup
 from io import BytesIO
+from datetime import date
 import os
 import logging
 import requests
@@ -212,6 +213,8 @@ class AgendaSerializer(TaggitSerializer, serializers.ModelSerializer):
         logger.debug("datos validados: %s" % validated_data)
         imagen_data = validated_data.pop('imagen', None)
         icono_data = validated_data.pop('icono', None)
+        if not validated_data['fecha_publicacion']:
+            validated_data['fecha_publicacion'] = date.today()
         icono = None
         imagen = None
         if icono_data:
