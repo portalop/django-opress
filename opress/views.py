@@ -540,7 +540,7 @@ class PhotoViewSet(viewsets.ModelViewSet):
     serializer_class = PhotoSerializer
 
 
-def get_resources_multi(limit=None, filtros={}, filtros_or={'Recurso': (), 'Multimedia': ()}):
+def get_resources_multi(limit=None, filtros={}, filtros_or={'Recurso': Q(), 'Multimedia': Q()}):
     resource_list = Recurso.objects.select_related('icono').filter(filtros_or['Recurso'], fecha__lte=datetime.now(), **filtros).order_by('-fecha').distinct()
     if 'tipo' in filtros:
         filtros['proveedor__tipo'] = filtros['tipo']
@@ -603,7 +603,7 @@ class RecursosArchivoView(View):
         seccion = pagina.get_root()
         arbol_seccion = pagina.get_ancestors(include_self=True) | pagina.get_children() | seccion.get_children() | pagina.get_siblings()
         arbol_seccion = arbol_seccion.exclude(pk=seccion.pk)
-        filtros, filtros_or = {}, {'Recurso': (), 'Multimedia': ()}
+        filtros, filtros_or = {}, {'Recurso': Q(), 'Multimedia': Q()}
         if year:
             filtros['fecha__year'] = year
             # resource_list = resource_list.filter(fecha__year=year)
