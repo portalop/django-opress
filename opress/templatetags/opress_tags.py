@@ -13,4 +13,6 @@ def dia_semana(value):
 
 @register.filter
 def comillas(value):
+    if not value:
+        value = ""
     return value.replace('"', "'")
