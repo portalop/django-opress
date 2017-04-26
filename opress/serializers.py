@@ -11,6 +11,7 @@ from taggit_serializer.serializers import (TagListSerializerField,
 from PIL import Image
 from bs4 import BeautifulSoup
 from io import BytesIO
+from datetime import date
 import os
 import logging
 import requests
@@ -25,12 +26,15 @@ def get_serialized_image(url):
 
 
 def get_image_from_url(data):
-    url = data.pop('image', None)
-    name, file = get_serialized_image(url)
-    del data['sites']
-    image = Photo(**data)
-    image.image.save(name, file, save=True)
-    image.save()
+    try:
+        image = Photo.objects.get(slug=data['slug'])
+    except Photo.DoesNotExist:
+        url = data.pop('image', None)
+        name, file = get_serialized_image(url)
+        del data['sites']
+        image = Photo(**data)
+        image.image.save(name, file, save=True)
+        image.save()
     return image
 
 
@@ -53,6 +57,8 @@ class SiteSerializer(serializers.ModelSerializer):
 
 
 class PhotoSerializer(serializers.ModelSerializer):
+    title = serializers.CharField(max_length=100, validators=[])
+    slug = serializers.CharField(max_length=100, validators=[])
     image = serializers.URLField()
 
     def validate_image(self, value):
@@ -229,6 +235,8 @@ class AgendaSerializer(TaggitSerializer, serializers.ModelSerializer):
             if not img['src'].startswith('http'):
                 img['src'] = settings.MY_DOMAIN + img['src']
         representation['contenido'] = str(contenido)
+        if not representation['fecha_publicacion']:
+            representation['fecha_publicacion'] = str(date.today())
         return representation
 
     class Meta:
