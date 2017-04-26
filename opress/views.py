@@ -290,12 +290,14 @@ def search(request, filtro=""):
             # pagina.ancestros = pagina.get_ancestors()
             pagina_buscar = pagina
     query_string = ''
+    query_tag = request.GET.get('tag', '')
     found_pages = None
     found_news = None
     found_events = None
     found_documents = None
     found_resources = None
     last_entry = {'pages': False, 'news': False, 'events': False, 'documents': False, 'resources': False}
+    tags = []
     if filtro == '':
         num_results = 5
     else:
@@ -304,16 +306,40 @@ def search(request, filtro=""):
         query_string = request.GET['q']
         if filtro == 'pagina' or filtro == '':
             entry_query = get_query(query_string, ['titulo', 'descripcion', 'menu', 'contenido'])
-            found_pages = Pagina.objects.filter(entry_query)[:num_results]
-            last_entry['pages'] = not Pagina.objects.filter(entry_query)[num_results + 1:].exists()
+            if query_tag:
+                etiqueta = get_object_or_404(HierarchicalTag, slug=query_tag)
+                found_pages = Pagina.objects.filter(entry_query, tags__in=etiqueta.get_descendants(include_self=True)).distinct()
+            else:
+                found_pages = Pagina.objects.filter(entry_query)
+            last_entry['pages'] = not found_pages[num_results + 1:].exists()
+            found_pages = found_pages[:num_results]
+            for page in found_pages:
+                for tag in page.tags.all():
+                    tag.get_tags(tags)
         if filtro == 'noticia' or filtro == '':
             entry_query = get_query(query_string, ['titulo', 'entradilla', 'contenido'])
-            found_news = Noticia.objects.filter(entry_query)[:num_results]
-            last_entry['news'] = not Noticia.objects.filter(entry_query)[num_results + 1:].exists()
+            if query_tag:
+                etiqueta = get_object_or_404(HierarchicalTag, slug=query_tag)
+                found_news = Noticia.objects.filter(entry_query, tags__in=etiqueta.get_descendants(include_self=True)).distinct()
+            else:
+                found_news = Noticia.objects.filter(entry_query)
+            last_entry['news'] = not found_news[num_results + 1:].exists()
+            found_news = found_news[:num_results]
+            for new in found_news:
+                for tag in new.tags.all():
+                    tag.get_tags(tags)
         if filtro == 'agenda' or filtro == '':
             entry_query = get_query(query_string, ['titulo', 'entradilla', 'contenido'])
-            found_events = Agenda.objects.filter(entry_query)[:num_results]
-            last_entry['events'] = not Agenda.objects.filter(entry_query)[num_results + 1:].exists()
+            if query_tag:
+                etiqueta = get_object_or_404(HierarchicalTag, slug=query_tag)
+                found_events = Agenda.objects.filter(entry_query, tags__in=etiqueta.get_descendants(include_self=True)).distinct()
+            else:
+                found_events = Agenda.objects.filter(entry_query)
+            last_entry['events'] = not found_events[num_results + 1:].exists()
+            found_events = found_events[:num_results]
+            for event in found_events:
+                for tag in event.tags.all():
+                    tag.get_tags(tags)
         if filtro == 'recurso' or filtro == '':
             query_resource = get_query(query_string, ['titulo', 'descripcion', 'contenido', 'isbn', 'autor'])
             query_multimedia = get_query(query_string, ['titulo', 'descripcion'])
@@ -321,20 +347,28 @@ def search(request, filtro=""):
                 'Recurso': query_resource,
                 'Multimedia': query_multimedia
             }
-            found_resources = get_resources_multi(filtros_or=filtros_or)
-            if len(found_resources) > num_results:
-                last_entry['resources'] = True
+            if query_tag:
+                etiqueta = get_object_or_404(HierarchicalTag, slug=query_tag)
+                found_resources = get_resources_multi(filtros={'tags__in': etiqueta.get_descendants(include_self=True)}, filtros_or=filtros_or)
+            else:
+                found_resources = get_resources_multi(filtros_or=filtros_or)
+            last_entry['resources'] = len(found_resources) <= num_results
             found_resources = found_resources[:num_results]
+            for resource in found_resources:
+                for tag in resource.tags.all():
+                    tag.get_tags(tags)
         if filtro == 'documento' or filtro == '':
             entry_query = get_query(query_string, ['nombre', 'descripcion'])
-            found_documents = Documento.objects.filter(entry_query)[:num_results]
-            last_entry['documents'] = not Documento.objects.filter(entry_query)[num_results + 1:].exists()
+            found_documents = Documento.objects.filter(entry_query)
+            last_entry['documents'] = not found_documents[num_results + 1:].exists()
+            found_documents = found_documents[:num_results]
     found_entries = {'pages': found_pages, 'news': found_news, 'events': found_events, 'documents': found_documents, 'resources': found_resources}
-    return render(request, 'opress/search.html', {'pagina': pagina_buscar, 'arbol_paginas': Pagina.objects.get_menu(), 'seccion': pagina_buscar, 'filtro': filtro, 'query_string': query_string, 'found_entries': found_entries, 'page_size': num_results, 'last_entry': last_entry})
+    return render(request, 'opress/search.html', {'pagina': pagina_buscar, 'arbol_paginas': Pagina.objects.get_menu(), 'seccion': pagina_buscar, 'filtro': filtro, 'query_string': query_string, 'query_tag': query_tag, 'found_entries': found_entries, 'page_size': num_results, 'last_entry': last_entry, 'tags': tags})
 
 
 def search_more(request, filtro=""):
     query_string = ''
+    query_tag = request.GET.get('tag', '')
     found_pages = None
     found_news = None
     found_events = None
@@ -347,16 +381,31 @@ def search_more(request, filtro=""):
         last = offset + int(request.GET['page_size'])
         if filtro == 'pagina':
             entry_query = get_query(query_string, ['titulo', 'descripcion', 'menu', 'contenido'])
-            found_pages = Pagina.objects.filter(entry_query)[offset:last]
-            last_entry['pages'] = not Pagina.objects.filter(entry_query)[last + 1:].exists()
+            if query_tag:
+                etiqueta = get_object_or_404(HierarchicalTag, slug=query_tag)
+                found_pages = Pagina.objects.filter(entry_query, tags__in=etiqueta.get_descendants(include_self=True)).distinct()
+            else:
+                found_pages = Pagina.objects.filter(entry_query)
+            last_entry['pages'] = not found_pages[last + 1:].exists()
+            found_pages = found_pages[offset:last]
         if filtro == 'noticia':
             entry_query = get_query(query_string, ['titulo', 'entradilla', 'contenido'])
-            found_news = Noticia.objects.filter(entry_query)[offset:last]
-            last_entry['news'] = not Noticia.objects.filter(entry_query)[last + 1:].exists()
+            if query_tag:
+                etiqueta = get_object_or_404(HierarchicalTag, slug=query_tag)
+                found_news = Noticia.objects.filter(entry_query, tags__in=etiqueta.get_descendants(include_self=True)).distinct()
+            else:
+                found_news = Noticia.objects.filter(entry_query)
+            last_entry['news'] = not found_news[last + 1:].exists()
+            found_news = found_news[offset:last]
         if filtro == 'agenda':
             entry_query = get_query(query_string, ['titulo', 'entradilla', 'contenido'])
-            found_events = Agenda.objects.filter(entry_query)[offset:last]
-            last_entry['events'] = not Agenda.objects.filter(entry_query)[last + 1:].exists()
+            if query_tag:
+                etiqueta = get_object_or_404(HierarchicalTag, slug=query_tag)
+                found_events = Agenda.objects.filter(entry_query, tags__in=etiqueta.get_descendants(include_self=True)).distinct()
+            else:
+                found_events = Agenda.objects.filter(entry_query)
+            last_entry['events'] = not found_events[last + 1:].exists()
+            found_events = found_events[offset:last]
         if filtro == 'recurso':
             query_resource = get_query(query_string, ['titulo', 'descripcion', 'contenido', 'isbn', 'autor'])
             query_multimedia = get_query(query_string, ['titulo', 'descripcion'])
@@ -364,14 +413,18 @@ def search_more(request, filtro=""):
                 'Recurso': query_resource,
                 'Multimedia': query_multimedia
             }
-            found_resources = get_resources_multi(filtros_or=filtros_or)
-            if len(found_resources) > last:
-                last_entry['resources'] = True
+            if query_tag:
+                etiqueta = get_object_or_404(HierarchicalTag, slug=query_tag)
+                found_resources = get_resources_multi(filtros={'tags__in': etiqueta.get_descendants(include_self=True)}, filtros_or=filtros_or)
+            else:
+                found_resources = get_resources_multi(filtros_or=filtros_or)
+            last_entry['resources'] = len(found_resources) <= last
             found_resources = found_resources[offset:last]
         if filtro == 'documento':
             entry_query = get_query(query_string, ['nombre', 'descripcion'])
-            found_documents = Documento.objects.filter(entry_query)[offset:last]
-            last_entry['documents'] = not Documento.objects.filter(entry_query)[last + 1:].exists()
+            found_documents = Documento.objects.filter(entry_query)
+            last_entry['documents'] = not found_documents[last + 1:].exists()
+            found_documents = found_documents[offset:last]
     found_entries = {'pages': found_pages, 'news': found_news, 'events': found_events, 'documents': found_documents, 'resources': found_resources}
     return render(request, 'opress/search_more.html', {'filtro_mas': filtro, 'found_entries': found_entries, 'last_entry': last_entry})
 

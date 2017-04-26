@@ -102,8 +102,14 @@ RESOURCE_TYPE_CHOICES = (
 )
 
 
-class HierarchicalTag (MPTTModel, TagBase):
+class HierarchicalTag(MPTTModel, TagBase):
     parent = TreeForeignKey('self', verbose_name="Pertenece a", null=True, blank=True, related_name='children')
+
+    def get_tags(self, tags):
+        if self.parent:
+            self.parent.get_tags(tags)
+        if self not in tags:
+            tags.append(self)
 
     class Meta:
         verbose_name = 'etiqueta'
@@ -113,7 +119,7 @@ class HierarchicalTag (MPTTModel, TagBase):
         order_insertion_by = ['name']
 
 
-class TaggedContentItem (CommonGenericTaggedItemBase):
+class TaggedContentItem(CommonGenericTaggedItemBase):
     tag = models.ForeignKey('HierarchicalTag', related_name='tags')
     # content_type = models.ForeignKey(ContentType)
     object_id = models.PositiveIntegerField()
