@@ -397,6 +397,13 @@ def search(request, filtro=""):
         basic_tags = HierarchicalTag.objects.filter(parent__isnull=True)
         for tag in basic_tags:
             tags.append(tag)
+        if query_tag:
+            try:
+                hierarchical_tag = HierarchicalTag.objects.get(slug=query_tag)
+                if hierarchical_tag:
+                    tags.append(hierarchical_tag)
+            except HierarchicalTag.DoesNotExist:
+                pass
     found_entries = {'pages': found_pages, 'news': found_news, 'events': found_events, 'documents': found_documents, 'resources': found_resources}
     return render(request, 'opress/search.html', {'pagina': pagina_buscar, 'arbol_paginas': Pagina.objects.get_menu(), 'seccion': pagina_buscar, 'filtro': filtro, 'query_string': query_string, 'query_tag': query_tag, 'found_entries': found_entries, 'page_size': num_results, 'last_entry': last_entry, 'tags': tags})
 
