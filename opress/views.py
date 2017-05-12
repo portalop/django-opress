@@ -333,9 +333,9 @@ def search(request, filtro=""):
                 entry_query = get_query(query_string, ['titulo', 'entradilla', 'contenido'])
                 if query_tag:
                     etiqueta = get_object_or_404(HierarchicalTag, slug=query_tag)
-                    found_events = Agenda.objects.filter(entry_query, tags__in=etiqueta.get_descendants(include_self=True)).distinct()
+                    found_events = Agenda.objects.filter(entry_query, fecha_fin__gte=date.today(), tags__in=etiqueta.get_descendants(include_self=True)).distinct()
                 else:
-                    found_events = Agenda.objects.filter(entry_query)
+                    found_events = Agenda.objects.filter(entry_query, fecha_fin__gte=date.today())
                 last_entry['events'] = not found_events[num_results + 1:].exists()
                 found_events = found_events[:num_results]
                 for event in found_events:
