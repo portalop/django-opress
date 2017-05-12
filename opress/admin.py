@@ -346,50 +346,51 @@ class NoticiaAdmin(admin.ModelAdmin):
                 yield inline.get_formset(request, obj), inline
 
     def save_formset(self, request, form, formset, change):
-        instances = formset.save(commit=False)
-        for obj in formset.deleted_objects:
-            obj.delete()
-        for instance in instances:
-            if hasattr(instance, 'sitio'):
-                if not form.instance.share_id:
-                    form.instance.share_id = str(uuid.uuid4())
-                    form.instance.save()
-                data = NoticiaSerializer(form.instance).data
-                url_api = reverse('opress:noticia-list')
-                if data['icono']:
-                    data['icono']['sites'] = []
-                if data['imagen']:
-                    data['imagen']['sites'] = []
-                for bloque in data['bloques']:
-                    if bloque['icono']:
-                        bloque['icono']['sites'] = []
-                    if bloque['imagen']:
-                        bloque['imagen']['sites'] = []
-                    if bloque['timeline']:
-                        for item in bloque['timeline']['items']:
-                            if item['imagen']:
-                                item['imagen']['sites'] = []
+        if formset.is_valid() and formset.instance:
+            instances = formset.save(commit=False)
+            for obj in formset.deleted_objects:
+                obj.delete()
+            for instance in instances:
+                if hasattr(instance, 'sitio'):
+                    if not form.instance.share_id:
+                        form.instance.share_id = str(uuid.uuid4())
+                        form.instance.save()
+                    data = NoticiaSerializer(form.instance).data
+                    url_api = reverse('opress:noticia-list')
+                    if data['icono']:
+                        data['icono']['sites'] = []
+                    if data['imagen']:
+                        data['imagen']['sites'] = []
+                    for bloque in data['bloques']:
+                        if bloque['icono']:
+                            bloque['icono']['sites'] = []
+                        if bloque['imagen']:
+                            bloque['imagen']['sites'] = []
+                        if bloque['timeline']:
+                            for item in bloque['timeline']['items']:
+                                if item['imagen']:
+                                    item['imagen']['sites'] = []
 
-                to = 'https://' + instance.sitio.domain + url_api
-                try:
-                    headers = {}
-                    headers['Content-Type'] = 'application/json; charset=utf-8'
-                    headers['Authorization'] = 'Token ' + instance.sitio.token
-                    response = requests.post(to, json.dumps(data), headers=headers, verify=False)
-                    response.raise_for_status()
-                    sitios = PublicacionSitio.objects.filter(object_id=form.instance.id, content_type=ContentType.objects.get_for_models(form.instance)[form.instance])
-                    if not sitios:
-                        instance.content_type = ContentType.objects.get_for_model(form.instance)
-                        instance.object_id = form.instance.id
-                        instance.content_object = form.instance
-                        instance.save()
-                except requests.exceptions.HTTPError:
-                    # error_message = response.content
-                    # raise "Error: " + str(error_message)
-                    pass
-            else:
-                instance.save()
-        formset.save_m2m()
+                    to = 'https://' + instance.sitio.domain + url_api
+                    try:
+                        headers = {}
+                        headers['Content-Type'] = 'application/json; charset=utf-8'
+                        headers['Authorization'] = 'Token ' + instance.sitio.token
+                        response = requests.post(to, json.dumps(data), headers=headers, verify=False)
+                        response.raise_for_status()
+                        sitios = PublicacionSitio.objects.filter(object_id=form.instance.id, content_type=ContentType.objects.get_for_models(form.instance)[form.instance])
+                        if not sitios:
+                            instance.content_type = ContentType.objects.get_for_model(form.instance)
+                            instance.object_id = form.instance.id
+                            instance.content_object = form.instance
+                            instance.save()
+                    except requests.exceptions.HTTPError:
+                        # error_message = response.content
+                        # raise "Error: " + str(error_message)
+                        pass
+                else:
+                    instance.save()
+            formset.save_m2m()
 
     def save_model(self, request, obj, form, change):
         new = True
