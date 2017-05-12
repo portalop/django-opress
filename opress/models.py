@@ -237,6 +237,7 @@ class Noticia(models.Model):
     tags = TaggableManager('Etiquetas', through=TaggedContentItem, blank=True)
     contenido = models.TextField('Contenido')
     publicado = models.BooleanField('Publicado', default=True)
+    share_id = models.CharField(max_length=36, null=True, blank=True, unique=True)
 
     def get_absolute_url(self):
         return reverse('opress:news_detail', args=[self.slug])
@@ -282,6 +283,7 @@ class Agenda(models.Model):
     domingo = models.BooleanField(default=False)
     fecha_publicacion = models.DateField('Fecha de publicación', default=date.today, blank=True, db_index=True)
     localidad = TaggableManager('Localidad', blank=True, through=LocationTags)
+    share_id = models.CharField(max_length=36, null=True, blank=True, unique=True)
 
     def get_absolute_url(self):
         return reverse('opress:event_detail', args=[self.slug])

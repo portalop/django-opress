@@ -4,6 +4,7 @@ import json
 import re
 import urlparse
 import requests
+import uuid
 from django import forms
 from django.contrib import admin
 from django.core.urlresolvers import reverse
@@ -339,12 +340,20 @@ class NoticiaAdmin(admin.ModelAdmin):
     inlines = [BloqueNoticiaInline, PublicacionSitioInline]
     form = NoticiaAdminForm
 
+    def get_formsets_to_send(self, request, obj=None):
+        for inline in self.get_inline_instances(request, obj):
+            if isinstance(inline, PublicacionSitioInline):
+                yield inline.get_formset(request, obj), inline
+
     def save_formset(self, request, form, formset, change):
         instances = formset.save(commit=False)
         for obj in formset.deleted_objects:
             obj.delete()
         for instance in instances:
             if hasattr(instance, 'sitio'):
+                if not form.instance.share_id:
+                    form.instance.share_id = str(uuid.uuid4())
+                    form.instance.save()
                 data = NoticiaSerializer(form.instance).data
                 url_api = reverse('opress:noticia-list')
                 if data['icono']:
@@ -368,10 +377,12 @@ class NoticiaAdmin(admin.ModelAdmin):
                     headers['Authorization'] = 'Token ' + instance.sitio.token
                     response = requests.post(to, json.dumps(data), headers=headers, verify=False)
                     response.raise_for_status()
-                    instance.content_type = ContentType.objects.get_for_model(form.instance)
-                    instance.object_id = form.instance.id
-                    instance.content_object = form.instance
-                    instance.save()
+                    sitios = PublicacionSitio.objects.filter(object_id=form.instance.id, content_type=ContentType.objects.get_for_models(form.instance)[form.instance])
+                    if not sitios:
+                        instance.content_type = ContentType.objects.get_for_model(form.instance)
+                        instance.object_id = form.instance.id
+                        instance.content_object = form.instance
+                        instance.save()
                 except requests.exceptions.HTTPError:
                     # error_message = response.content
                     # raise "Error: " + str(error_message)
@@ -379,6 +390,16 @@ class NoticiaAdmin(admin.ModelAdmin):
             else:
                 instance.save()
         formset.save_m2m()
+
+    def save_model(self, request, obj, form, change):
+        new = True
+        if obj.pk:
+            new = False
+        super(NoticiaAdmin, self).save_model(request, obj, form, change)
+        if not new and form.has_changed():
+            formsets = self.get_formsets_to_send(request, obj)
+            for formset in formsets:
+                self.save_formset(request, form, formset[0](request.POST), change)
 
     class Media:
         js = [
@@ -395,6 +416,11 @@ class AgendaAdmin(admin.ModelAdmin):
     inlines = [PublicacionSitioInline]
     form = AgendaAdminForm
 
+    def get_formsets_to_send(self, request, obj=None):
+        for inline in self.get_inline_instances(request, obj):
+            if isinstance(inline, PublicacionSitioInline):
+                yield inline.get_formset(request, obj), inline
+
     def save_formset(self, request, form, formset, change):
         instances = formset.save(commit=False)
 
@@ -402,6 +428,9 @@ class AgendaAdmin(admin.ModelAdmin):
             obj.delete()
         for instance in instances:
             if hasattr(instance, 'sitio'):
+                if not form.instance.share_id:
+                    form.instance.share_id = str(uuid.uuid4())
+                    form.instance.save()
                 data = AgendaSerializer(form.instance).data
                 url_api = reverse('opress:agenda-list')
                 if data['icono']:
@@ -416,10 +445,12 @@ class AgendaAdmin(admin.ModelAdmin):
                     headers['Authorization'] = 'Token ' + instance.sitio.token
                     response = requests.post(to, json.dumps(data), headers=headers, verify=False)
                     response.raise_for_status()
-                    instance.content_type = ContentType.objects.get_for_model(form.instance)
-                    instance.object_id = form.instance.id
-                    instance.content_object = form.instance
-                    instance.save()
+                    sitios = PublicacionSitio.objects.filter(object_id=form.instance.id, content_type=ContentType.objects.get_for_models(form.instance)[form.instance])
+                    if not sitios:
+                        instance.content_type = ContentType.objects.get_for_model(form.instance)
+                        instance.object_id = form.instance.id
+                        instance.content_object = form.instance
+                        instance.save()
                 except requests.exceptions.HTTPError:
                     # error_message = response.content
                     # raise "Error: " + str(error_message)
@@ -427,6 +458,17 @@ class AgendaAdmin(admin.ModelAdmin):
             else:
                 instance.save()
         formset.save_m2m()
+
+    def save_model(self, request, obj, form, change):
+        new = True
+        if obj.pk:
+            new = False
+        super(AgendaAdmin, self).save_model(request, obj, form, change)
+        form.save_m2m()
+        if not new and form.has_changed():
+            formsets = self.get_formsets_to_send(request, obj)
+            for formset in formsets:
+                self.save_formset(request, form, formset[0](request.POST), change)
 
     class Media:
         js = [
