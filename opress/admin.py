@@ -346,7 +346,9 @@ class NoticiaAdmin(admin.ModelAdmin):
                 yield inline.get_formset(request, obj), inline
 
     def save_formset(self, request, form, formset, change):
-        if formset.is_valid() and formset.instance:
+        if not formset.instance:
+            formset.instance = form.instance
+        if formset.is_valid():
             instances = formset.save(commit=False)
             for obj in formset.deleted_objects:
                 obj.delete()
@@ -423,7 +425,9 @@ class AgendaAdmin(admin.ModelAdmin):
                 yield inline.get_formset(request, obj), inline
 
     def save_formset(self, request, form, formset, change):
-        if formset.is_valid() and formset.instance:
+        if not formset.instance:
+            formset.instance = form.instance
+        if formset.is_valid():
             instances = formset.save(commit=False)
 
             for obj in formset.deleted_objects:
