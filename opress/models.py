@@ -102,8 +102,14 @@ RESOURCE_TYPE_CHOICES = (
 )
 
 
-class HierarchicalTag (MPTTModel, TagBase):
+class HierarchicalTag(MPTTModel, TagBase):
     parent = TreeForeignKey('self', verbose_name="Pertenece a", null=True, blank=True, related_name='children')
+
+    def get_tags(self, tags):
+        if self.parent:
+            self.parent.get_tags(tags)
+        if self not in tags:
+            tags.append(self)
 
     class Meta:
         verbose_name = 'etiqueta'
@@ -113,7 +119,7 @@ class HierarchicalTag (MPTTModel, TagBase):
         order_insertion_by = ['name']
 
 
-class TaggedContentItem (CommonGenericTaggedItemBase):
+class TaggedContentItem(CommonGenericTaggedItemBase):
     tag = models.ForeignKey('HierarchicalTag', related_name='tags')
     # content_type = models.ForeignKey(ContentType)
     object_id = models.PositiveIntegerField()
@@ -237,6 +243,7 @@ class Noticia(models.Model):
     tags = TaggableManager('Etiquetas', through=TaggedContentItem, blank=True)
     contenido = models.TextField('Contenido')
     publicado = models.BooleanField('Publicado', default=True)
+    share_id = models.CharField(max_length=36, null=True, blank=True, unique=True)
 
     def get_absolute_url(self):
         return reverse('opress:news_detail', args=[self.slug])
@@ -282,6 +289,7 @@ class Agenda(models.Model):
     domingo = models.BooleanField(default=False)
     fecha_publicacion = models.DateField('Fecha de publicación', default=date.today, blank=True, db_index=True)
     localidad = TaggableManager('Localidad', blank=True, through=LocationTags)
+    share_id = models.CharField(max_length=36, null=True, blank=True, unique=True)
 
     def get_absolute_url(self):
         return reverse('opress:event_detail', args=[self.slug])

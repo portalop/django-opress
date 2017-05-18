@@ -132,9 +132,11 @@ class BloqueSerializer(serializers.ModelSerializer):
 
 
 class NoticiaSerializer(serializers.ModelSerializer):
+    slug = serializers.CharField(max_length=100, validators=[])
     icono = PhotoSerializer(allow_null=True)
     imagen = PhotoSerializer(allow_null=True)
     bloques = BloqueSerializer(source='bloque_set', many=True)
+    share_id = serializers.CharField(max_length=36, validators=[])
 
     def create(self, validated_data):
         ip_addr = get_ip_address(self.context.get('request'))
@@ -151,7 +153,18 @@ class NoticiaSerializer(serializers.ModelSerializer):
         if imagen_data:
             imagen = get_image_from_url(imagen_data)
         bloques = validated_data.pop('bloque_set', None)
-        noticia = Noticia.objects.create(icono=icono, imagen=imagen, publicado=publicar, **validated_data)
+        noticias = Noticia.objects.filter(share_id=validated_data['share_id'])
+        if noticias and validated_data['share_id']:
+            noticias.update(icono=icono, imagen=imagen, publicado=publicar, **validated_data)
+            noticia = noticias[0]
+        else:
+            noticias = Noticia.objects.filter(slug=validated_data['slug'])
+            if noticias:
+                noticias.update(icono=icono, imagen=imagen, publicado=publicar, **validated_data)
+                noticia = noticias[0]
+            else:
+                noticia = Noticia.objects.create(icono=icono, imagen=imagen, publicado=publicar, **validated_data)
+        Bloque.objects.filter(noticia=noticia).delete()
         for bloque in bloques:
             icono_data = bloque.pop('icono', None)
             imagen_data = bloque.pop('imagen', None)
@@ -199,13 +212,15 @@ class NoticiaSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Noticia
-        fields = ('titulo', 'slug', 'fecha', 'entradilla', 'icono', 'imagen', 'contenido', 'bloques')
+        fields = ('titulo', 'slug', 'fecha', 'entradilla', 'icono', 'imagen', 'contenido', 'bloques', 'share_id')
 
 
 class AgendaSerializer(TaggitSerializer, serializers.ModelSerializer):
+    slug = serializers.CharField(max_length=100, validators=[])
     icono = PhotoSerializer(allow_null=True)
     imagen = PhotoSerializer(allow_null=True)
     localidad = TagListSerializerField()
+    share_id = serializers.CharField(max_length=36, validators=[])
 
     def create(self, validated_data):
         ip_addr = get_ip_address(self.context.get('request'))
@@ -222,7 +237,19 @@ class AgendaSerializer(TaggitSerializer, serializers.ModelSerializer):
         if imagen_data:
             imagen = get_image_from_url(imagen_data)
         localidades = validated_data.pop('localidad', None)
-        agenda = Agenda.objects.create(icono=icono, imagen=imagen, publicado=publicar, **validated_data)
+        agendas = Agenda.objects.filter(share_id=validated_data['share_id'])
+        if agendas and validated_data['share_id']:
+            agendas.update(icono=icono, imagen=imagen, publicado=publicar, **validated_data)
+            agenda = agendas[0]
+        else:
+            agendas = Agenda.objects.filter(slug=validated_data['slug'])
+            if agendas:
+                agendas.update(icono=icono, imagen=imagen, publicado=publicar, **validated_data)
+                agenda = agendas[0]
+            else:
+                agenda = Agenda.objects.create(icono=icono, imagen=imagen, publicado=publicar, **validated_data)
+        for localidad in agenda.localidad.all():
+            agenda.localidad.remove(localidad)
         for localidad in localidades:
             tag, created = LocationTag.objects.get_or_create(name=localidad)
             agenda.localidad.add(tag)
@@ -242,4 +269,4 @@ class AgendaSerializer(TaggitSerializer, serializers.ModelSerializer):
     class Meta:
         model = Agenda
         fields = ('titulo', 'slug', 'fecha_inicio', 'fecha_fin', 'entradilla', 'icono', 'imagen', 'contenido', 'se_anuncia', 'inicio_anuncio', 'fin_anuncio',
-                  'es_periodico', 'lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo', 'fecha_publicacion', 'localidad')
+                  'es_periodico', 'lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo', 'fecha_publicacion', 'localidad', 'share_id')
