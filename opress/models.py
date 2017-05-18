@@ -231,7 +231,7 @@ class Noticia(models.Model):
     slug = models.SlugField('url', unique=True)
     fecha = models.DateField('Fecha', default=datetime.now, blank=True, db_index=True)
     entradilla = models.TextField('Entradilla')
-    icono = PhotoField(image_size=IMAGE_SIZES['noticias_relacionadas'][IMAGESIZE_NAME], verbose_name="Icono " + IMAGE_SIZES['noticias_relacionadas'][IMAGESIZE_LABEL], on_delete=models.PROTECT, related_name='noticias_iconos_set')
+    icono = PhotoField(image_size=IMAGE_SIZES['noticias_icono_portada'][IMAGESIZE_NAME], verbose_name="Icono " + IMAGE_SIZES['noticias_icono_portada'][IMAGESIZE_LABEL], on_delete=models.PROTECT, related_name='noticias_iconos_set')
     imagen = PhotoField(image_size=IMAGE_SIZES['noticia_imagen'][IMAGESIZE_NAME], verbose_name="Imagen " + IMAGE_SIZES['noticia_imagen'][IMAGESIZE_LABEL], blank=True, null=True, on_delete=models.PROTECT, related_name='noticias_imagenes_set')
     # tags = TaggableManager('Etiquetas', blank=True)
     tags = TaggableManager('Etiquetas', through=TaggedContentItem, blank=True)
