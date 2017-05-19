@@ -387,7 +387,7 @@ class Bloque(models.Model):
 
     class Meta:
         verbose_name = 'bloque'
-        ordering = ['titulo']
+        #ordering = ['titulo']
 
 
 @python_2_unicode_compatible
