@@ -1,0 +1,179 @@
+{% load staticfiles %}
+{% load mptt_tags %}
+          <header>
+              {% if slider_list %}
+                {% include "opress/destacados.html" %}
+              {% else %}
+                {% if pagina.imagen_cabecera %}
+             	 <img src="{{ pagina.imagen_cabecera.get_portada_destacado_url }}" alt="{{ pagina.imagen_cabecera.title }}" width="100%" />
+                {% endif %}
+              {% endif %}
+              {% for bloque in bloque_list.all %}
+                {% include "opress/bloque.html" %}
+              {% endfor %}
+              {{ pagina.contenido|safe }}
+          </header>
+          <div class="row">
+            <section class="col-xs-12 col-sm-6 col-md-4">
+               <div class="portada">
+                  <h2>Crónicas</h2><span class="pull-right"><a href="{% url 'opress:static_page' 'capitulo-provincial-2016/cronicas' %}">+</a></span>
+                </div>
+                {% for categoria in document_list %}
+                  {% for document in categoria.documento_set.all|dictsortreversed:"id" %}
+                    {% if forloop.counter == 1 %}
+                  <article class="news col-xs-12">
+                        <a href="{% url "opress:static_page" "capitulo-provincial-2016/cronica" %}{{ document.get_url }}" title="{{ document.icono.title }}">
+                            <img src="{{ document.icono.get_documento_icono_url }}" alt="{{ document.icono.title }}" width="100%" />
+                        </a>
+                        <h3><a href="{% url "opress:static_page" "capitulo-provincial-2016/cronica" %}{{ document.get_url }}">{{ document.nombre }}</a></h3>
+                        <span>{{ document.fecha }}</span><br>
+                        <p>{{ document.descripcion|safe }}</p>
+                  </article>
+                    {% endif %}
+                  {% endfor %}
+                {% endfor %}
+                <div class="col-xs-12 col-sm-6 col-md-12">
+                  <p><a href="{% url 'opress:static_page' 'capitulo-provincial-2016/cronicas' %}" class="more hidden-xs">Ver todas las crónicas</a></p>
+              </div>
+            </section>
+            <section class="col-xs-12 col-sm-6 col-md-4">
+               <div class="portada">
+                  <h2>Vídeos</h2><span class="pull-right"><a href="{% url 'opress:static_page' 'capitulo-provincial-2016/videos' %}">+</a></span>
+                </div>
+                {% recursetree pagina.get_descendants %}
+                  {% for bloque in node.bloques_cabecera.all|dictsortreversed:"id" %}
+                    {% if bloque.tipo == "youtube" and forloop.counter == 1 %}
+                  <article class="news col-xs-12 col-sm-6 col-md-12">
+                      {% if bloque.icono %}
+                    <a class="youtube" href="http{% if request.is_secure %}s{% endif %}://www.youtube.com/embed/{{ bloque.youtube_id }}?rel=0&amp;wmode=transparent" title="{{ bloque.icono.title }}">
+                      <img  style="background:url({{ bloque.icono.get_bloque_icono_url }}) no-repeat center" alt="{{ bloque.icono.title }}" width="100%" src="{% static "hispaniae/images/capitulo-2016/video-play.png" %}">
+                    </a>
+                      {% endif %}
+                      {% if bloque.titulo %}
+                    <h3><a class="youtube" href="http{% if request.is_secure %}s{% endif %}://www.youtube.com/embed/{{ bloque.youtube_id }}?rel=0&amp;wmode=transparent" title="{{ bloque.icono.title }}">{{ bloque.titulo }}</a></h3>
+                      {% endif %}
+                      {% if bloque.descripcion %}
+                    <p>{{ bloque.descripcion|safe }}</p>
+                      {% endif %}
+                  </article>
+                    {% endif %}
+                  {% endfor %}
+                  {% for bloque in node.bloques_pie.all|dictsortreversed:"id" %}
+                    {% if bloque.tipo == "youtube" and forloop.counter == 1 %}
+                  <article class="news col-xs-12 col-md-12">
+                      {% if bloque.icono %}
+                    <a class="youtube" href="http{% if request.is_secure %}s{% endif %}://www.youtube.com/embed/{{ bloque.youtube_id }}?rel=0&amp;wmode=transparent" title="{{ bloque.icono.title }}">
+                      <img  style="background:url({{ bloque.icono.get_bloque_icono_url }}) no-repeat center" alt="{{ bloque.icono.title }}" width="100%" src="{% static "hispaniae/images/capitulo-2016/video-play.png" %}">
+                   </a>
+                      {% endif %}
+                      {% if bloque.titulo %}
+                    <h3><a class="youtube" href="http{% if request.is_secure %}s{% endif %}://www.youtube.com/embed/{{ bloque.youtube_id }}?rel=0&amp;wmode=transparent" title="{{ bloque.icono.title }}">{{ bloque.titulo }}</a></h3>
+                      {% endif %}
+                      {% if bloque.descripcion %}
+                    <p>{{ bloque.descripcion|safe }}</p>
+                      {% endif %}
+                  </article>
+                    {% endif %}
+                  {% endfor %}
+                  {{ children }}
+                {% endrecursetree %}
+                <div class="col-xs-12 col-md-12">
+                  <p><a href="{% url 'opress:static_page' 'capitulo-provincial-2016/videos' %}" class="more hidden-xs">Ver todos los vídeos</a></p>
+              </div>
+            </section>
+            <section class="col-xs-12 col-sm-6 col-md-4">
+               <div class="portada">
+                  <h2>Fotos</h2><span class="pull-right"><a href="{% url 'opress:static_page' 'capitulo-provincial-2016/fotos' %}">+</a></span>
+                </div>
+                {% recursetree pagina.get_descendants %}
+                  {% for bloque in node.bloques_cabecera.all|dictsortreversed:"id" %}
+                    {% if bloque.tipo == "flickr" and forloop.counter == 1 %}
+                  <article class="news col-xs-12 col-md-12">
+                      
+    <div id="nanoGallery{{ bloque.id }}"></div>
+        <script>
+      $(document).ready(function () {
+        $("#nanoGallery{{ bloque.id }}").nanoGallery({
+                kind: 'flickr',
+                userID: '{{ bloque.flickr_user.user_id }}',
+                photoset: '{{ bloque.flickr_album }}',
+        thumbnailWidth: 270,
+        thumbnailHeight: 202,
+        colorScheme: 'none',
+        paginationMaxLinesPerPage: 1,
+        thumbnailHoverEffect: [{ name: 'labelAppear75', duration: 300 }],
+        theme: 'light',
+        thumbnailGutterWidth : 0,
+        thumbnailGutterHeight : 0,
+        i18n: { 
+          thumbnailImageDescription: 'Ver foto',
+          paginationPrevious: 'Anterior',
+          paginationNext: 'Siguiente',
+        },
+        thumbnailLabel: { display: true, position: 'overImageOnMiddle', align: 'center' }
+        });
+      });
+        </script>
+                  {% if bloque.titulo %}
+                       <h3 style="text-align:center;">{{ bloque.titulo }}</h3>
+                  {% endif %}
+                  </article>
+                    {% endif %}
+                  {% endfor %}
+                  {% for bloque in node.bloques_pie.all %}
+                    {% if bloque.tipo == "flickr" and forloop.counter == 1 %}
+                  <article class="col-xs-12 col-md-12">
+    					<div id="nanoGallery{{ bloque.id }}"></div>
+        <script>
+      $(document).ready(function () {
+        $("#nanoGallery{{ bloque.id }}").nanoGallery({
+                kind: 'flickr',
+                userID: '{{ bloque.flickr_user.user_id }}',
+                photoset: '{{ bloque.flickr_album }}',
+        thumbnailWidth: 270,
+        thumbnailHeight: 202,
+        colorScheme: 'none',
+        paginationMaxLinesPerPage: 1,
+        thumbnailHoverEffect: [{ name: 'labelAppear75', duration: 300 }],
+        theme: 'light',
+        thumbnailGutterWidth : 0,
+        thumbnailGutterHeight : 0,
+        i18n: { 
+          thumbnailImageDescription: 'Ver foto',
+          paginationPrevious: 'Anterior',
+          paginationNext: 'Siguiente',
+        },
+        thumbnailLabel: { display: true, position: 'overImageOnMiddle', align: 'center' }
+        });
+      });
+        </script>
+                  </article>
+                    {% endif %}
+                  {% endfor %}
+                  	{{ children }}
+	                {% endrecursetree %}
+                  <div class="col-xs-12 col-md-12">
+                   <p style="text-align:center;"><a href="{% url 'opress:static_page' 'capitulo-provincial-2016/fotos' %}" class="more">Ver todas las fotos</a></p>
+                  </div>
+            </section>
+          </div>
+           {% if not pagina.is_leaf_node and not pagina.tiene_menu_bloque %}
+           <hr>
+           <footer class="row">
+                  <nav>
+                      <div class="hidden-sm col-md-1">
+                      </div>
+                      {% for hija in pagina.get_children %}
+                        {% if hija.slug != 'multimedia' and hija.slug != 'cronicas' %}
+                      <div class="col-xs-6 col-sm-4 col-md-2 secundaria-texto-subsec">
+                       <a href="{{ hija.get_absolute_url }}"><img src="{{ hija.icono.get_pagina_icono_url }}" alt="{{ hija.titulo }}" width="100%"></a><br>
+                      <a href="{{ hija.get_absolute_url }}">{{ hija.titulo }}</a><br>
+                      </div>
+                          {% if forloop.counter|divisibleby:2 %}
+                   		<div class="clearfix visible-xs-inline"><br /></div>
+	                        {% endif %}
+                        {% endif %}
+                      {% endfor %}
+                  </nav>
+           </footer>
+            {% endif %}

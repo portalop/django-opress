@@ -1,0 +1,68 @@
+{% extends "opress/base.html" %}
+{% load staticfiles %}
+{% load static %}
+{% load mptt_tags %}
+{% block title %}{{ documento.nombre }} - {% endblock %}
+{% block content %}
+  <section>
+     <header class="row">
+        	<div class="col-md-12">
+                <div class="portada">
+                  <h2>{{ pagina.titulo }}</h2>
+                </div>
+                {% include "opress/migas.html" %}
+       	  </div>
+     </header>
+     <div class="row">
+        <nav class="col-xs-12 col-sm-2 secundaria-menu">
+          <h2><a href="{{ seccion.get_absolute_url }}">{{ seccion.menu|default:seccion.titulo }}</a></h2>
+          <ul class="nav nav-pills nav-stacked">
+          {% recursetree categorias %}
+              <li{% if node.pk == categoria_actual.pk %} class="active"{% endif %}>
+                  <a href="{{ node.get_absolute_url }}">{{ node.nombre }}</a>
+              {% if node.get_children %}
+                  <ul class="children">
+                      {{ children }}
+                  </ul>
+              {% endif %}
+              </li>
+          {% endrecursetree %}
+          </ul>
+        </nav>
+        <article class="col-xs-12 col-sm-9 secundaria-agenda">
+        	<header>
+                <h1>{{ documento.nombre }}</h1>
+                <span>{{ documento.fecha }}</span><br>
+            </header>
+            <div class="col-md-9 cuerpotexto">
+	            {{ documento.descripcion|safe }}
+              {% if documento.contenido %}
+              <p>&nbsp;</p>
+              {{ documento.contenido|safe }}
+              {% endif %}
+              {% if documento.archivo %}
+                <iframe src="{% get_media_prefix %}{{ documento.archivo }}" scrolling="no" width="700" height="400" frameborder="0"></iframe>
+              {% endif %}
+            </div>
+            <aside class="col-md-3">
+            	<br>
+           </aside>
+           <aside class="row">
+                <div class="clearfix hidden-xs"></div>
+                <h2>Otros documentos</h2>
+                {% for document in documents_list %}
+                	<article class="news-secun col-xs-12 col-sm-6 col-md-6 agenda">
+                    	
+                        <h2><a href="{{ document.get_absolute_url }}">{{ document.nombre }}</a></h2>
+                        {{ document.fecha }}
+                        <p>{{ documento.descripcion|safe }}</p>
+                    </article>
+                    {% if forloop.counter|divisibleby:2 %}
+                     <div class="clearfix hidden-xs"></div>
+                    {% endif %}
+                {% endfor %}
+           </aside>
+        </article>
+     </div>
+</section>
+{% endblock %}

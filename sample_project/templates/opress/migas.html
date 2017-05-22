@@ -1,0 +1,7 @@
+<ol class="breadcrumb hidden-xs">
+    <li><a href="{% url 'opress:index' %}">Inicio</a></li>
+    {% for miga in pagina.get_ancestors %}
+    <li><a href="{{ miga.get_absolute_url }}">{{ miga.menu|default:miga.titulo }}</a></li>
+    {% endfor %}
+    <li class="active">{% if noticia %}{{ noticia.titulo }}{% else %}{{ pagina.titulo }}{% endif %}</li>
+</ol>
