@@ -741,7 +741,7 @@ class Articulo(models.Model):
     blog = models.ForeignKey(Blog, verbose_name=_('Blog'))
     titulo = models.CharField(_('Título'), max_length=300)
     slug = models.SlugField('url', unique=False)
-    subtitulo = models.CharField(_('Subtítulo'), max_length=3000, blank=True, null=True)
+    subtitulo = models.CharField(_('Subtítulo'), max_length=260, blank=True, null=True)
     autor = models.ForeignKey(AutorArticulo, verbose_name=_('Autor'), blank=True, null=True)
     icono = PhotoField(image_size=IMAGE_SIZES['blog_imagen'][IMAGESIZE_NAME], verbose_name="Imagen " + IMAGE_SIZES['blog_imagen'][IMAGESIZE_LABEL], blank=True, null=True, on_delete=models.SET_NULL, related_name='articulos_iconos_set')
     contenido = models.TextField(_('Contenido'))
