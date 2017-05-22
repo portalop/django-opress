@@ -616,7 +616,7 @@ class ArticuloAdmin(admin.ModelAdmin):
         if not request.user.has_perm('can_admin_blogs'):
             blog = get_object_or_404(Blog, usuario=request.user)
             if not blog.es_colectivo:
-                excluidos += ('autor')
+                excluidos += ('autor',)
             if not blog.tiene_categorias:
                 excluidos += ('seccion',)
         self.exclude = excluidos
@@ -636,7 +636,7 @@ class ArticuloAdmin(admin.ModelAdmin):
         if not request.user.has_perm('can_admin_blogs'):
             blog = get_object_or_404(Blog, usuario=request.user)
             if not blog.es_colectivo:
-                excluidos += ('autor')
+                excluidos += ('autor',)
             if not blog.tiene_categorias:
                 excluidos += ('seccion',)
         self.list_display = tuple(f for f in lista_campos if f not in excluidos)
