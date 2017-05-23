@@ -17,7 +17,7 @@ from photologue import PHOTOLOGUE_APP_DIR
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'oyuw^x2%msxlye#^i=ddiztyzx-pd2neaqo-&e(#lr3!5s7&9w'
+SECRET_KEY = '[:SECRET_KEY:]'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 PRODUCTION = (platform.node() != 'desarrollo' and 'dev-' not in platform.node())
