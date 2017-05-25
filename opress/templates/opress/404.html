@@ -1,0 +1,24 @@
+{% extends "opress/base.html" %}
+{% load staticfiles %}
+
+{% block content %}
+<div class="row" style="margin:50px 0;">
+     <div class="col-md-1 hidden-xs">
+     	<br>
+     </div>
+     <div class="col-xs-12 col-md-3 hidden-xs">
+     	<img src="{% static "hispaniae/images/angel-mensajero.jpg" %}" alt="Angel mensajero"/>
+     </div>
+     <div class="col-md-1 hidden-xs">
+     	<br>
+     </div>
+     <div class="col-xs-12 col-md-6 secundaria-texto-news" style="float:left">
+     <br><br>
+     <h1 class="naranja" >¿Dónde está la página?</h1>
+     <p class="lead"><strong>Lo sentimos</strong>, la página que está buscando no existe. Error 404.</p>
+     <p>Puede volver atrás o ir a la página de inicio:</p>
+     <p><a href="javascript:history.back()" class="btn btn-primary btn-sm">Volver atrás</a></p>
+     <p><a href="{% url 'opress:index' %}" class="btn btn-primary btn-sm">Ir a la portada</a></p>
+     </div>
+</div>
+{% endblock %}

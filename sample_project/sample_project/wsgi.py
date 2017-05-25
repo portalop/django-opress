@@ -1,15 +1,15 @@
 """
-WSGI config for hispaniae project.
+WSGI config for [:SAMPLE_PROJECT:] project.
 
 It exposes the WSGI callable as a module-level variable named ``application``.
 
 For more information on this file, see
-https://docs.djangoproject.com/en/1.6/howto/deployment/wsgi/
+https://docs.djangoproject.com/en/dev/howto/deployment/wsgi/
 """
 
 import os
-from hispaniae import settings
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "hispaniae.settings")
+from [:SAMPLE_PROJECT:] import settings
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "[:SAMPLE_PROJECT:].settings")
 import django
 django.setup()
 try:

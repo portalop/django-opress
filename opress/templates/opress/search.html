@@ -1,0 +1,111 @@
+{% extends "opress/base.html" %}
+{% block title %}{{ pagina.titulo }} - {% endblock %}
+{% block head_content %}
+<script language="JavaScript" type="text/JavaScript">
+  function buscar_mas(enlace, content_id, url) {
+      var offset, page_size;
+      offset = enlace.data("offset");
+      page_size = enlace.data("page-size");
+      enlace.data("offset", offset + page_size);
+      $.get(url, {offset: offset, page_size: page_size, q: '{{ query_string }}'}, function(data) {
+        $(content_id).append(data);
+        if ($($.parseHTML(data)).filter("#last_entry").attr("value")=="True")
+          enlace.hide();
+      });
+  }
+  $(document).ready(function() {
+    $('#more_pages').click(function(){
+      buscar_mas($(this), '#page_results', '{% url 'opress:search_more' filtro="pagina" %}');
+    });
+    $('#more_news').click(function(){
+      buscar_mas($(this), '#news_results', '{% url 'opress:search_more' filtro="noticia" %}');
+    });
+    $('#more_events').click(function(){
+      buscar_mas($(this), '#event_results', '{% url 'opress:search_more' filtro="agenda" %}');
+    });
+    $('#more_documents').click(function(){
+      buscar_mas($(this), '#document_results', '{% url 'opress:search_more' filtro="documento" %}');
+    });
+  });
+</script>
+{% endblock %}
+{% block content %}
+  <section>
+     <header class="row">
+        	<div class="col-md-12">
+                <div class="portada">
+                  <h1>{{ pagina.titulo }}</h1>
+                </div>
+                {% include "opress/migas.html" %}
+       	  </div>
+     </header>
+     <div class="row">
+        <nav class="col-xs-12 col-sm-3 secundaria-menu">
+          <h2>Mostrar solo:</h2>
+          <ul class="nav nav-pills nav-stacked">
+            <li{% if filtro == '' %} class="active"{% endif %}><a href="{% url 'opress:search' %}?q={{ query_string.split|join:'+' }}">Todo</a></li>
+            <li{% if filtro == 'noticia' %} class="active"{% endif %}><a href="{% url 'opress:search' filtro='noticia' %}?q={{ query_string.split|join:'+' }}">Noticias</a></li>
+            <li{% if filtro == 'agenda' %} class="active"{% endif %}><a href="{% url 'opress:search' filtro='agenda' %}?q={{ query_string.split|join:'+' }}">Agenda</a></li>
+            <li{% if filtro == 'documento' %} class="active"{% endif %}><a href="{% url 'opress:search' filtro='documento' %}?q={{ query_string.split|join:'+' }}">Documentos</a></li>
+            <li{% if filtro == 'pagina' %} class="active"{% endif %}><a href="{% url 'opress:search' filtro='pagina' %}?q={{ query_string.split|join:'+' }}">Páginas</a></li>
+          </ul>
+        </nav>
+        <div class="col-xs-12 col-sm-9 secundaria-texto-news">
+          <form role="search" method="get" action="{% url 'opress:search' %}" class="row form-group">
+            <div class="col-xs-12 col-sm-2">
+              <label for="id_q">Estás buscando:</label>
+            </div>
+            <div class="col-xs-12 col-sm-7">
+              <input type="text" name="q" id="id_q" value="{{ query_string }}" class="form-control" placeholder="Palabra a buscar"/>
+            </div>
+            <div class="col-xs-12 col-sm-3">            
+              <button type="submit" class="btn btn-default btn-sm">Buscar</button>
+            </div>
+          </form>
+          <h1><small>Resultados para:</small>  <span class=naranja>{{ query_string }}</span></h1>
+          <hr class="linea_naranja"/>
+          {% if found_entries.pages %}
+          <h3>Páginas:</h3>
+            <div id="page_results">
+              {% include "opress/search_more.html" with filtro_mas="pagina" %}
+            </div>
+          {% if not last_entry.pages %}
+          <p style="text-align:center"><button id="more_pages" role="button" class="btn btn-default btn-sm" data-offset="{{ page_size }}" data-page-size="{{ page_size }}">Ver más resultados de páginas <span class="glyphicon glyphicon-chevron-down naranja"></span></button>
+          </p>
+          {% endif %}
+          <hr class="linea_naranja"/>
+          {% endif %}
+          {% if found_entries.news %}
+          <h3>Noticias:</h3>
+            <div id="news_results">
+              {% include "opress/search_more.html" with filtro_mas="noticia" %}
+            </div>
+          {% if not last_entry.news %}
+          <p style="text-align:center"><button id="more_news" role="button" class="btn btn-default btn-sm" data-offset="{{ page_size }}" data-page-size="{{ page_size }}">Ver más resultados en noticias <span class="glyphicon glyphicon-chevron-down naranja"></span></button></p>
+          {% endif %}
+          <hr class="linea_naranja"/>
+          {% endif %}
+          {% if found_entries.events %}
+          <h3>Agenda:</h3>
+            <div id="event_results">
+              {% include "opress/search_more.html" with filtro_mas="agenda" %}
+            </div>
+          {% if not last_entry.events %}
+          <p style="text-align:center"><button id="more_events" role="button" class="btn btn-default btn-sm" data-offset="{{ page_size }}" data-page-size="{{ page_size }}">Ver más resultados en la agenda <span class="glyphicon glyphicon-chevron-down naranja"></span></button></p>
+          {% endif %}
+          <hr class="linea_naranja"/>
+          {% endif %}
+          {% if found_entries.documents %}
+          <h3>Documentos:</h3>
+            <div id="document_results">
+              {% include "opress/search_more.html" with filtro_mas="documento" %}
+            </div>
+          {% if not last_entry.documents %}
+          <p style="text-align:center"><button id="more_documents" role="button" class="btn btn-default btn-sm" data-offset="{{ page_size }}" data-page-size="{{ page_size }}">Ver más resultados en documentos <span class="glyphicon glyphicon-chevron-down naranja"></span></button></p>
+          {% endif %}
+          <hr class="linea_naranja"/>
+          {% endif %}
+        </div>
+    </div>
+</section>
+{% endblock %}

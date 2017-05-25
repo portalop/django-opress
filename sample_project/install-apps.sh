@@ -2,7 +2,7 @@
 export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 export WORKON_HOME=/home/.virtualenvs
 source /usr/local/bin/virtualenvwrapper.sh
-workon hispaniae
+workon [:SAMPLE_PROJECT:]
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )"/.. && pwd )"
 echo $DIR
@@ -51,7 +51,7 @@ while [ "$1" != "" ]; do
         if [ "$1" = "mptt" ]; then
             cd $DIR/apps/django-mptt
             python $DIR/apps/django-mptt/setup.py sdist
-            pip install --upgrade --no-deps --force-reinstall --ignore-installed $DIR/apps/django-mptt/dist/django-mptt-0.7a0.tar.gz
+            pip install --upgrade --no-deps --force-reinstall --ignore-installed $DIR/apps/django-mptt/dist/django-mptt-0.8.7.tar.gz
         fi
         if [ "$1" = "mptt-admin" ]; then
             cd $DIR/apps/django-mptt-admin
@@ -69,15 +69,15 @@ while [ "$1" != "" ]; do
             pip install --upgrade --no-deps --force-reinstall --ignore-installed $DIR/apps/django-sortedm2m/dist/django-sortedm2m-0.8.1.tar.gz
         fi
         if [ "$1" = "migrations" ]; then
-            $DIR/hispaniae/manage.py makemigrations
-            $DIR/hispaniae/manage.py migrate
+            $DIR/[:SAMPLE_PROJECT:]/manage.py makemigrations
+            $DIR/[:SAMPLE_PROJECT:]/manage.py migrate
         fi
     # Shift all the parameters down by one
     shift
 done
-cd $DIR/hispaniae
+cd $DIR/[:SAMPLE_PROJECT:]
 
-#$DIR/hispaniae/manage.py schemamigration opress --auto
-#$DIR/hispaniae/manage.py schemamigration photologue --auto
+#$DIR/[:SAMPLE_PROJECT:]/manage.py schemamigration opress --auto
+#$DIR/[:SAMPLE_PROJECT:]/manage.py schemamigration photologue --auto
 
-$DIR/hispaniae/manage.py collectstatic --noinput
+$DIR/[:SAMPLE_PROJECT:]/manage.py collectstatic --noinput
