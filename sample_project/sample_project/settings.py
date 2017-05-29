@@ -277,6 +277,7 @@ OPRESS_IMAGE_SIZES = {
     'otro_blog_imagen': ('otro_blog_imagen', u'152x140px'),
     'recurso_icono': ('recurso_icono', u'tamaño variable'),
 }
+PHOTOLOGUE_IMAGE_SIZES = OPRESS_IMAGE_SIZES
 if PRODUCTION:
     OPRESS_CONTACT_EMAIL = '[:OPRESS_CONTACT_EMAIL:]'
 else:

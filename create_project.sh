@@ -20,58 +20,59 @@ cd $DIR
 if [ ! -d "$PROJECT_NAME" ]; then
 	export WORKON_HOME=/home/.virtualenvs
 	source /usr/local/bin/virtualenvwrapper.sh
-	# mkvirtualenv $PROJECT_NAME
+	mkvirtualenv $PROJECT_NAME
 	workon $PROJECT_NAME
 
 	echo "installing required packages on virtualenv"
-	# pip install django
-	# cd $DIR/apps/django-contrib-comments
-	# python $DIR/apps/django-contrib-comments/setup.py sdist
-	# pip install --upgrade --no-deps --force-reinstall --ignore-installed $DIR/apps/django-contrib-comments/dist/django-contrib-comments-1.7.0.dev1.tar.gz
-	# cd $DIR/apps/django-fluent-comments
-	# python $DIR/apps/django-fluent-comments/setup.py sdist
-	# pip install --upgrade --no-deps --force-reinstall --ignore-installed $DIR/apps/django-fluent-comments/dist/django-fluent-comments-1.2.tar.gz
-	# cd $DIR/apps/django-taggit
-	# python $DIR/apps/django-taggit/setup.py sdist
-	# pip install --upgrade --no-deps --force-reinstall --ignore-installed $DIR/apps/django-taggit/dist/django-taggit-0.18.0.tar.gz
-	# cd $DIR/apps/django-taggit-labels
-	# python $DIR/apps/django-taggit-labels/setup.py sdist
-	# pip install --upgrade --no-deps --force-reinstall --ignore-installed $DIR/apps/django-taggit-labels/dist/django-taggit-labels-0.4.1.tar.gz
-	# cd $DIR/apps/django-grappelli
-	# #compass compile $DIR/apps/django-grappelli/grappelli/compass
-	# python $DIR/apps/django-grappelli/setup.py sdist
-	# pip install --upgrade --no-deps --force-reinstall --ignore-installed $DIR/apps/django-grappelli/dist/django-grappelli-2.9.1.tar.gz
-	# cd $DIR/apps/django-photologue
-	# python $DIR/apps/django-photologue/setup.py sdist
-	# pip install --upgrade --no-deps --force-reinstall --ignore-installed $DIR/apps/django-photologue/dist/django-photologue-3.1.dev0.tar.gz
-	# cd $DIR/apps/django-filebrowser
-	# python $DIR/apps/django-filebrowser/setup.py sdist
-	# pip install --upgrade --no-deps --force-reinstall --ignore-installed $DIR/apps/django-filebrowser/dist/django-filebrowser-3.7.2.tar.gz
-	# cd $DIR/apps/django-mptt
-	# python $DIR/apps/django-mptt/setup.py sdist
-	# pip install --upgrade --no-deps --force-reinstall --ignore-installed $DIR/apps/django-mptt/dist/django-mptt-0.8.7.tar.gz
-	# cd $DIR/apps/django-mptt-admin
-	# python $DIR/apps/django-mptt-admin/setup.py sdist
-	# pip install --upgrade --no-deps --force-reinstall --ignore-installed $DIR/apps/django-mptt-admin/dist/django-mptt-admin-0.3.1.tar.gz
-	# cd $DIR/apps/django-tinymce
-	# python $DIR/apps/django-tinymce/setup.py sdist
-	# pip install --upgrade --no-deps --force-reinstall --ignore-installed $DIR/apps/django-tinymce/dist/django-tinymce-2.7.0.dev0.tar.gz
-	# cd $DIR/apps/django-opress
-	# python $DIR/apps/django-opress/setup.py sdist
-	# pip install --upgrade --no-deps --force-reinstall --ignore-installed $DIR/apps/django-opress/dist/opress-0.1.tar.gz
-	# pip install django-sortedm2m
-	# pip install djangorestframework
-	# pip install django-statsd
-	# pip install django-debug-toolbar
-	# pip install MySQL-python
-	# pip install ExifRead
-	# pip install Pillow
-	# pip install django-subdomains
-	# pip install requests
-	# pip install django-taggit-serializer
-	# pip install beautifulsoup4
-	# pip install django-ipware
-	# pip install python-memcached
+	pip install django
+	cd $DIR/apps/django-contrib-comments
+	python $DIR/apps/django-contrib-comments/setup.py sdist
+	pip install --upgrade --no-deps --force-reinstall --ignore-installed $DIR/apps/django-contrib-comments/dist/django-contrib-comments-1.7.0.dev1.tar.gz
+	cd $DIR/apps/django-fluent-comments
+	python $DIR/apps/django-fluent-comments/setup.py sdist
+	pip install --upgrade --no-deps --force-reinstall --ignore-installed $DIR/apps/django-fluent-comments/dist/django-fluent-comments-1.2.tar.gz
+	cd $DIR/apps/django-taggit
+	python $DIR/apps/django-taggit/setup.py sdist
+	pip install --upgrade --no-deps --force-reinstall --ignore-installed $DIR/apps/django-taggit/dist/django-taggit-0.18.0.tar.gz
+	cd $DIR/apps/django-taggit-labels
+	python $DIR/apps/django-taggit-labels/setup.py sdist
+	pip install --upgrade --no-deps --force-reinstall --ignore-installed $DIR/apps/django-taggit-labels/dist/django-taggit-labels-0.4.1.tar.gz
+	cd $DIR/apps/django-grappelli
+	#compass compile $DIR/apps/django-grappelli/grappelli/compass
+	python $DIR/apps/django-grappelli/setup.py sdist
+	pip install --upgrade --no-deps --force-reinstall --ignore-installed $DIR/apps/django-grappelli/dist/django-grappelli-2.9.1.tar.gz
+	cd $DIR/apps/django-photologue
+	python $DIR/apps/django-photologue/setup.py sdist
+	pip install --upgrade --no-deps --force-reinstall --ignore-installed $DIR/apps/django-photologue/dist/django-photologue-3.1.dev0.tar.gz
+	cd $DIR/apps/django-filebrowser
+	python $DIR/apps/django-filebrowser/setup.py sdist
+	pip install --upgrade --no-deps --force-reinstall --ignore-installed $DIR/apps/django-filebrowser/dist/django-filebrowser-3.7.2.tar.gz
+	cd $DIR/apps/django-mptt
+	python $DIR/apps/django-mptt/setup.py sdist
+	pip install --upgrade --no-deps --force-reinstall --ignore-installed $DIR/apps/django-mptt/dist/django-mptt-0.8.7.tar.gz
+	cd $DIR/apps/django-mptt-admin
+	python $DIR/apps/django-mptt-admin/setup.py sdist
+	pip install --upgrade --no-deps --force-reinstall --ignore-installed $DIR/apps/django-mptt-admin/dist/django-mptt-admin-0.3.1.tar.gz
+	cd $DIR/apps/django-tinymce
+	python $DIR/apps/django-tinymce/setup.py sdist
+	pip install --upgrade --no-deps --force-reinstall --ignore-installed $DIR/apps/django-tinymce/dist/django-tinymce-2.7.0.dev0.tar.gz
+	cd $DIR/apps/django-opress
+	python $DIR/apps/django-opress/setup.py sdist
+	pip install --upgrade --no-deps --force-reinstall --ignore-installed $DIR/apps/django-opress/dist/opress-0.1.tar.gz
+	pip install django-sortedm2m
+	pip install djangorestframework
+	pip install django-statsd-mozilla
+	pip install django-debug-toolbar
+	pip install MySQL-python
+	pip install ExifRead
+	pip install Pillow
+	pip install django-subdomains
+	pip install requests
+	pip install django-taggit-serializer
+	pip install beautifulsoup4
+	pip install django-ipware
+	pip install python-memcached
+
 	echo "Creating project $PROJECT_NAME on folder $DIR"
 
 	function reemplazar {
@@ -83,6 +84,7 @@ if [ ! -d "$PROJECT_NAME" ]; then
 	cp $PROJECT_NAME/sample_project/*.* $PROJECT_NAME/$PROJECT_NAME/
 	rm -r $PROJECT_NAME/sample_project
 	find $DIR/$PROJECT_NAME/templates -type f -exec sed -i "s/\[:SAMPLE_PROJECT:\]/$PROJECT_NAME/g" {} \;
+	find $DIR/$PROJECT_NAME/templates -type f -exec sed -i "s/\[:PROJECT_TITLE:\]/$PROJECT_TITLE/g" {} \;
 	mv $DIR/$PROJECT_NAME/static/sample_project $DIR/$PROJECT_NAME/static/$PROJECT_NAME
 	cdsitepackages
 	mv $DIR/$PROJECT_NAME/NginxMemCacheMiddleWare.py .
@@ -100,6 +102,7 @@ if [ ! -d "$PROJECT_NAME" ]; then
 	reemplazar "[:PROJECT_DIR:]" "$DIR/$PROJECT_NAME" $PROJECT_NAME/settings.py
 	reemplazar "[:PROJECT_TITLE:]" "$PROJECT_TITLE" $PROJECT_NAME/settings.py
 	reemplazar "[:OPRESS_CONTACT_EMAIL:]" "$OPRESS_CONTACT_EMAIL" $PROJECT_NAME/settings.py
+	reemplazar "[:SAMPLE_PROJECT:]" "$PROJECT_NAME" $PROJECT_NAME/__init__.py
 	reemplazar "[:SAMPLE_PROJECT:]" "$PROJECT_NAME" $PROJECT_NAME/urls.py
 	reemplazar "[:SAMPLE_PROJECT:]" "$PROJECT_NAME" $PROJECT_NAME/wsgi.py
 	reemplazar "[:SAMPLE_PROJECT:]" "$PROJECT_NAME" deploy.sh
@@ -113,7 +116,7 @@ if [ ! -d "$PROJECT_NAME" ]; then
 	reemplazar "[:MY_IP:]" "$MY_IP" sample_project_nginx.conf
 	UWSGI_PORT=$(grep 127.0 /etc/uwsgi/vassals/*.* | grep -o '....$' | sort -r | head -1)
 	reemplazar "[:UWSGI_PORT:]" "$UWSGI_PORT" sample_project_uwsgi.ini
-	python manage.py collectstatic --noinput
+	python manage.py collectstatic --noinput --verbosity 0
 	mv sample_project_nginx.conf /etc/nginx/sites-available/$PROJECT_NAME.conf
 	mv sample_project_uwsgi.ini /etc/uwsgi/vassals/$PROJECT_NAME.ini
 	ln -s /etc/nginx/sites-available/$PROJECT_NAME.conf /etc/nginx/sites-enabled/
@@ -128,10 +131,9 @@ if [ ! -d "$PROJECT_NAME" ]; then
 	find $DIR/$PROJECT_NAME -type f -exec chmod 644 {} \;
 	find $DIR/$PROJECT_NAME -type d -exec chmod 755 {} \;
 	chmod 744 $DIR/$PROJECT_NAME/manage.py
-
-	echo "Restarting web server..."
-	rm $DIR/$PROJECT_NAME/$PROJECT_NAME.log
-	$DIR/restart_uwsgi.sh
+	chmod +x $DIR/$PROJECT_NAME/install-apps.sh
+	chmod +x $DIR/$PROJECT_NAME/deploy.sh
+	chmod +x $DIR/$PROJECT_NAME/deploy_code.sh
 
 	echo "Creating and migrating MySql database"
 	mysql -u root -p$ROOT_DB_PASSWORD <<EOF
@@ -147,6 +149,21 @@ EOF
 
 	echo "Creating superuser with name 'admin' and password '$ADMIN_PASSWORD'"
 	echo "from django.contrib.auth.models import User; User.objects.create_superuser('admin', '$ADMIN_EMAIL', '$ADMIN_PASSWORD')" | $DIR/$PROJECT_NAME/manage.py shell
+
+	if [ -n "$GIT_REMOTE" ]; then
+		echo "Creating Git repository linked to $GIT_REMOTE"
+		cd $DIR/$PROJECT_NAME
+		git init
+		git add -A &> /dev/null
+		git commit -q -m "Initial commit for project $PROJECT_NAME"
+		git remote add origin $GIT_REMOTE 
+	else
+		echo "Skipping Git repository creation (no remote set)"
+	fi
+
+	echo "Restarting web server..."
+	rm $DIR/$PROJECT_NAME/$PROJECT_NAME.log
+	$DIR/restart_uwsgi.sh
 else
 	echo "La carpeta de proyecto $PROJECT_NAME ya existe"
 fi
