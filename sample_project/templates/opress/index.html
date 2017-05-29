@@ -1,0 +1,176 @@
+{% extends "opress/base.html" %}
+{% load cache %}
+{% load staticfiles %}
+{% load mptt_tags %}
+{% block content %}
+
+{% if slider_list %}
+  {% include "opress/destacados.html" %}
+{% endif %}
+<div class="row">
+     <section class="col-sm-12 col-md-8">
+         <div class="portada">
+              <h2>Noticias</h2><span class="pull-right"><a href="{% url 'opress:news' %}">+</a></span>
+         </div>
+         <div class="row">
+         	<div class="col-md-12 no-padding">
+            	{% for new in news_list %}
+                	<article class="news col-xs-12 col-sm-6 col-md-6">
+                    	<h3><a href="{% url 'opress:news_detail' new.slug %}">{{ new.titulo }}</a></h3>
+                      	<span>{{ new.fecha }}</span><br>
+                      	<a href="{% url 'opress:news_detail' new.slug %}"><img src="{{ new.icono.get_noticias_icono_portada_url }}" alt="{{ new.icono.title }}"></a>
+                      	<p>{{ new.entradilla }}<br>
+                      	<a href="{% url 'opress:news_detail' new.slug %}" class="more hidden-xs">Ver más</a>
+                      	</p>
+                  	</article>
+                	{% if forloop.counter|divisibleby:2 %}
+                   		<div class="clearfix hidden-xs"><br /></div>
+	                {% endif %}
+              	{% endfor %}
+            </div>
+    	 </div>
+	</section>
+    <div class="col-sm-12 col-md-4">
+    	<section>
+               <div class="portada">
+                  <h2>Agenda</h2><span class="pull-right"><a href="{% url 'opress:events' %}">+</a></span>
+                </div>
+                {% for evento in agenda_list %}
+                	<article class="agenda col-xs-12 col-sm-6 col-md-12">
+                    	<span>{{ evento.get_dates_str }}</span><br>
+                        <a href="{% url 'opress:event_detail' evento.slug %}"><img src="{{ evento.icono.get_agenda_icono_url }}" alt="{{ evento.icono.title }}"></a>
+                        <h3><a href="{% url 'opress:event_detail' evento.slug %}">{{ evento.titulo }}</a></h3>
+                        <p>{{ evento.entradilla|safe }}</p>
+                    </article>
+              	{% endfor %}
+                <div class="agenda col-xs-12 col-sm-6 col-md-12">
+                  <p><a href="{% url 'opress:events' %}" class="more hidden-xs">Ver toda la agenda</a></p>
+	            </div>
+         </section> 
+         <div class="col-xs-12 col-sm-6 col-md-12 opweb">
+                  <a href="http://www.dominicos.org/" target="_blank"><img src="{% static "[:SAMPLE_PROJECT:]/images/dominicos-org.jpg" %}" width="272" height="152" alt="Ir a la web dominicos.org"/></a>
+         </div> 
+         <div class="col-xs-12 col-sm-6 col-md-12 opweb">
+                  <a href="http://www.op.org/es" target="_blank"><img src="{% static "[:SAMPLE_PROJECT:]/images/op-internacional.jpg" %}" width="272" height="152" alt="Ir a la web internacional de la Orden de Predicadores"/></a>
+         </div>
+         <div class="col-xs-12 col-sm-6 col-md-12 opweb">
+                  <a href="http://ser.dominicos.org/" target="_blank"><img src="{% static "[:SAMPLE_PROJECT:]/images/ser-fraile-dominico.jpg" %}" width="272" height="152" alt="Ir a la web vocacional de Ser Fraile Dominico"/></a>
+         </div>    
+    </div>
+</div>
+<section class="col-sm-12 col-md-12">
+  <div class="portada">
+    <h2>Blogs</h2>
+  </div>
+  <div class="row">
+       <article class="col-xs-6 col-sm-4">
+       		<a href="http://elatril.dominicos.org/" target="_blank"><img src="{% static "[:SAMPLE_PROJECT:]/images/antonio-praena-blog-el-atril.jpg" %}" alt="Blog El Atril de fray Antonio Praena" width="100%" ></a><a href="http://elatril.dominicos.org/" target="_blank">El Atril - Antonio Praena</a>
+       </article>
+       <article class="col-xs-6 col-sm-4">
+       		<a href="http://nihilobstat.dominicos.org/" target="_blank"><img src="{% static "[:SAMPLE_PROJECT:]/images/martin-gelabert-blog-nihil-obstat.jpg" %}" alt="Blog Nihil Obstat de fray Martín Gelabert" width="100%" ></a><a href="http://nihilobstat.dominicos.org/" target="_blank">Nihil Obstat - Martín Gelabert</a>
+       </article>
+       <div class="clearfix visible-xs"><br></div>
+       <article class="col-xs-6 col-sm-4">
+       		<a href="http://bitacoraveritas.dominicos.org/" target="_blank"><img src="{% static "[:SAMPLE_PROJECT:]/images/sixto-castro-blog-bitacora-veritas.jpg" %}" alt="Blog Bitácora Véritas de fray Sixto Castro" width="100%" ></a><a href="http://bitacoraveritas.dominicos.org/" target="_blank">Bitácora Véritas - Sixto Castro</a>
+       </article>
+   </div>
+    <br>
+    <br>
+</section>
+<section class="col-sm-12 col-md-12">
+    {% cache 18000 donde_estamos %}
+    <div class="portada">
+      <h2>¿Dónde estamos?</h2>
+    </div>
+    <p>Estos son los lugares en los que la Provincia de Hispania tiene conventos o casas. Te invitamos a verlos y conocer algo más sobre nuestra presencia. </p>
+    <!-- Nav tabs -->
+    <div class="visible-xs">
+      {% for pais in additional_content.places_list.get_children %}
+      <a class="btn btn-primary btn-xs" href="{{ pais.get_absolute_url }}" role="button">{{ pais.titulo }}</a>
+      {% endfor %}
+    </div>
+    <ul class="nav nav-tabs hidden-xs nav-donde" role="tablist">
+      {% for pais in additional_content.places_list.get_children %}
+      <li{% if forloop.first %} class="active"{% endif %}><a href="#id-{{ pais.slug }}" role="tab" data-toggle="tab">{{ pais.titulo }}</a></li>
+      {% endfor %}
+    </ul>
+    
+    <!-- Tab panes -->
+    <div class="tab-content hidden-xs">
+      {% for pais in additional_content.places_list.get_children_not_conventos %}
+        <div class="tab-pane {% if forloop.first %}active {% endif %}nav-donde-tab" id="id-{{ pais.slug }}">
+          {% if pais.get_children_not_conventos %}
+          <ul class="navbar nav nav-pills small nav-donde-tabs" role="tablist">
+            <li class="active"><a href="#id-{{ pais.slug }}-all" role="tab" data-toggle="tab">Todos</a></li>
+            {% for region in pais.get_children_not_conventos %}
+            <li><a href="#id-{{ pais.slug }}-{{ region.slug }}" role="tab" data-toggle="tab">{{ region.titulo }}</a></li>
+            {% endfor %}
+          </ul>
+          {% endif %}
+          <!-- Tab panes -->
+          <div class="tab-content donde-tab">
+            <div class="tab-pane active" id="id-{{ pais.slug }}-all">
+                <div class="row">
+                    <div class="col-sm-12">
+                        {% for casa in pais.get_descendants_conventos|slice:":9" %}
+                          <article class="col-xs-6 col-md-4">
+                                <div class="col-sm-3"><a href="{{ casa.get_absolute_url }}"><img src="{{ casa.icono.get_donde_estamos_icono_url }}" alt="{{ casa.icono.title }}" width="100%"></a></div>
+                                <div class="col-sm-9">
+                                    <a href="{{ casa.get_absolute_url }}">{{ casa.titulo }}</a>
+                                </div>
+                          </article>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% for region in pais.get_children_not_conventos %}
+            <div class="tab-pane" id="id-{{ pais.slug }}-{{ region.slug }}">
+                <div class="row">
+                    <div class="col-sm-2">
+                        <br>
+                        <span class="donde-tab-tit">{{ region.titulo }}</span>
+                    </div>
+                    <div class="col-sm-10">
+                        {% for casa in region.get_descendants_conventos %}
+                          <article class="col-xs-6 col-md-4">
+                                <div class="col-sm-3"><a href="{{ casa.get_absolute_url }}"><img src="{{ casa.icono.get_donde_estamos_icono_url }}" alt="{{ casa.icono.title }}" width="100%"></a></div>
+                                <div class="col-sm-9">
+                                    <a href="{{ casa.get_absolute_url }}">{{ casa.titulo }}</a>
+                                </div>
+                          </article>
+                        {% endfor %}
+                	    {% if forloop.counter|divisibleby:3 %}
+                          <div class="clearfix visible-md"></div>
+	                    {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+    {% endcache %}
+</section>
+<section class="col-sm-12 col-md-12">
+  <div class="portada">
+    <h2>Instituciones</h2>
+  </div>
+  <p>Estas son algunas de las instituciones de la Provincia de Hispania, <a href="{% url 'opress:static_page' 'instituciones' %}">aquí puedes ver todas</a>.</p>
+    <div class="row instituciones">
+    {% for institucion in additional_content.institutions_list %}
+       <article class="col-xs-6 col-sm-4 col-md-2">
+       		<a href="{{ institucion.get_absolute_url }}"><img src="{{ institucion.icono.get_pagina_icono_url }}" alt="{{ institucion.icono.title }}" width="100%" ></a><a href="{{ institucion.get_absolute_url }}">{{ institucion.titulo }}</a><br><br>
+       </article>
+        {% if forloop.counter|divisibleby:3 %}
+          <div class="clearfix visible-sm-inline"><br /></div>
+	    {% endif %}
+        {% if forloop.counter|divisibleby:2 %}
+          <div class="clearfix visible-xs-inline"><br /></div>
+	    {% endif %}
+    {% endfor %}
+	</div>
+    <br>
+    <br>
+</section>
+{% endblock %}

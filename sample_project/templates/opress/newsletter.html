@@ -1,0 +1,273 @@
+{% load staticfiles %}
+<html xmlns:v="urn:schemas-microsoft-com:vml"
+xmlns:o="urn:schemas-microsoft-com:office:office"
+xmlns:w="urn:schemas-microsoft-com:office:word"
+xmlns:m="http://schemas.microsoft.com/office/2004/12/omml"
+xmlns="http://www.w3.org/TR/REC-html40">
+
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=utf-8">
+<meta name=ProgId content=Word.Document>
+<meta name=Generator content="Microsoft Word 14">
+<meta name=Originator content="Microsoft Word 14">
+<!--[if gte mso 9]>
+<xml>
+<w:WordDocument>
+<w:View>Print</w:View>
+<w:Zoom>100</w:Zoom>
+<w:DoNotOptimizeForBrowser/>
+</w:WordDocument>
+</xml>
+<![endif]-->
+<style>
+<!--
+@page {
+  mso-footnote-separator:fs;
+  mso-footnote-continuation-separator:fcs;
+  mso-endnote-separator:es;
+  mso-endnote-continuation-separator:ecs;
+}
+@page WordSection1
+  {
+  mso-header-margin:35.45pt;
+  mso-footer-margin:35.45pt;
+  mso-even-header:eh1;
+  mso-header:h1;
+  mso-even-footer:ef1;
+  mso-footer:f1;
+  mso-first-header:fh1;
+  mso-first-footer:ff1;
+  mso-paper-source:0;
+  size:595.3pt 841.9pt;
+  margin:36.0pt 36.0pt 36.0pt 36.0pt;  }
+div.WordSection1
+  {page:WordSection1;}
+div#pie
+{
+    margin:0in 0in 0in 900in;
+    width:1px;
+    height:1px;
+    overflow:hidden;
+    display: none;
+}
+body
+    {font-family: 'open sans', arial, sans-serif;
+  color: #000;
+  font-size: 9pt;}
+.titulo
+    {background:  #E7273A;
+    font-family: "open sans","Lucida Sans", sans-serif;
+	font-weight: lighter;
+  font-size: 20px;
+    color: #FFF;
+    text-align:center;}
+.pt5
+  {font-size: 5pt;} 
+.left
+    {float: left;
+  margin-right: 10pt;} 
+.right
+    {float: right;
+  margin-left: 10pt;}     
+.cabecera h1, .pie h1
+    {color:  #E7273A;
+  font-family: "open sans","Lucida Sans", sans-serif;
+  font-weight: lighter;
+  font-size: 35px;
+  border-bottom:none;} 
+.WordSection1 .cuerpotexto, .WordSection1 .cabecera, .WordSection1 .pie
+{
+    font-family: "open sans",sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+}
+
+.WordSection1 p
+{
+    text-align: justify;
+}
+
+a
+{
+    color:  #E7273A;
+}
+
+h1 
+  {border-bottom: 1px solid  #E7273A;
+  color:  #E7273A;
+  font-family: "open sans","Lucida Sans", sans-serif;
+  font-weight: lighter;
+  font-size: 35px;
+  line-height: 1;}
+h2 
+  {font-family: "open sans","Lucida Sans", sans-serif;
+  color: #474747;
+  font-size: 19pt;
+  margin-top: 0;
+    margin-bottom:5px;
+  font-weight: lighter;}
+.WordSection1 span.fecha
+  {font-family: "open sans","Lucida Sans", sans-serif;
+   font-weight: lighter;
+    font-size: 13pt;
+  color: #E7273A}
+hr 
+    {border: 1px solid;
+    color: #ddd;
+    margin-top: 10px;
+    margin-bottom: 20px;
+  clear:both;}
+body,td,th {
+  font-family: "open sans", arial, sans-serif;
+}
+p.MsoFooter, li.MsoFooter, div.MsoFooter
+  {mso-style-priority:99;
+  mso-style-unhide:no;
+  mso-style-link:"Pie de página Car";
+  margin:0cm;
+  margin-bottom:.0001pt;
+  text-align:justify;
+  text-indent:0cm;
+  line-height:normal;
+  mso-pagination:widow-orphan;
+  tab-stops:center 212.6pt right 425.2pt;
+  font-size:10.0pt;
+  mso-bidi-font-size:12.0pt;
+  font-family:"Verdana","sans-serif";
+  mso-fareast-font-family:"Verdana";
+  mso-bidi-font-family:"Verdana";
+  mso-ansi-language:ES;
+  mso-fareast-language:EN-US;}
+table.MsoTableGrid
+  {mso-style-name:"Tabla con cuadrícula";
+  mso-tstyle-rowband-size:0;
+  mso-tstyle-colband-size:0;
+  mso-style-priority:99;
+  mso-style-unhide:no;
+  border:solid windowtext 1.0pt;
+  mso-border-alt:solid windowtext .5pt;
+  mso-padding-alt:0cm 5.4pt 0cm 5.4pt;
+  mso-border-insideh:.5pt solid windowtext;
+  mso-border-insidev:.5pt solid windowtext;
+  mso-para-margin:0cm;
+  mso-para-margin-bottom:.0001pt;
+  mso-pagination:widow-orphan;
+  font-size:10.0pt;
+  font-family:"Verdana","sans-serif";}
+-->
+</style>
+</head>
+<body>
+    <div align="center"><img src="{% static "admin/img/newsletter/cabecera-boletin.png" %}" alt="cabecera" width="695" height="130"/>
+    <table width="695" border="0" cellpadding="0" cellspacing="0" class="titulo">
+      <tbody>
+        <tr>
+          <td class="pt5">&nbsp;</td>
+        </tr>
+        <tr>
+          <td class="titulo">{{ newsletter.nombre }}</td>
+        </tr>
+        <tr>
+          <td class="pt5">&nbsp;</td>
+        </tr>
+      </tbody>
+    </table>
+    <img src="{{ newsletter.imagen.get_portada_destacado_url }}" alt="{{ newsletter.imagen.title }}" width="695" height="238"/>
+</div>
+<div class="WordSection1">
+    <div class="cabecera">{{ newsletter.cabecera|safe }}</div>
+  <h1>Noticias</h1>
+    {% for noticia in news_list %}
+  <header>
+        <h2>{{ noticia.titulo }}</h2>
+        <span class="fecha">{{ noticia.fecha }}</span>
+        <br>
+  </header>
+    <div class="cuerpotexto">
+      {% if noticia.imagen %}
+      <img src="{{ noticia.imagen.get_noticias_icono_ennoticias_url }}" alt="{{ noticia.imagen.title }}" class="left" align="left" hspace="10">
+      {% endif %}
+        {{ noticia.contenido|safe }}
+      <hr>
+    </div>
+    {% endfor %}
+    <div class="pie">{{ newsletter.pie|safe }}</div>
+</div>
+
+<div id='pie'>
+<div style='mso-element:footnote-separator' id=fs>
+<p class=MsoNormal style='margin:0cm;margin-bottom:.0001pt;line-height:normal'><span
+style='mso-special-character:footnote-separator'><![if !supportFootnotes]>
+<hr align=left size=1 width="33%">
+<![endif]></span></p>
+</div>
+<div style='mso-element:footnote-continuation-separator' id=fcs>
+<p class=MsoNormal style='margin:0cm;margin-bottom:.0001pt;line-height:normal'><span
+style='mso-special-character:footnote-continuation-separator'><![if !supportFootnotes]>
+<hr align=left size=1>
+<![endif]></span></p>
+</div>
+<div style='mso-element:endnote-separator' id=es>
+<p class=MsoNormal style='margin:0cm;margin-bottom:.0001pt;line-height:normal'><span
+style='mso-special-character:footnote-separator'><![if !supportFootnotes]>
+<hr align=left size=1 width="33%">
+<![endif]></span></p>
+</div>
+<div style='mso-element:endnote-continuation-separator' id=ecs>
+<p class=MsoNormal style='margin:0cm;margin-bottom:.0001pt;line-height:normal'><span
+style='mso-special-character:footnote-continuation-separator'><![if !supportFootnotes]>
+<hr align=left size=1>
+<![endif]></span></p>
+</div>
+<div style='mso-element:header' id=eh1>
+<p class=MsoHeader><o:p>&nbsp;</o:p></p>
+</div>
+<div style='mso-element:header' id=h1>
+<p class=MsoHeader><o:p>&nbsp;</o:p></p>
+</div>
+<div style='mso-element:footer' id=ef1>
+<p class=MsoFooter><o:p>&nbsp;</o:p></p>
+</div>
+
+<div style='mso-element:footer' id=f1><w:Sdt SdtDocPart="t"
+ DocPartType="Page Numbers (Bottom of Page)" DocPartUnique="t" ID="104934939">
+ <p class=MsoFooter align=right style='text-align:right'><o:p>&nbsp;</o:p><w:sdtPr></w:sdtPr></p>
+ <table class=MsoTableGrid border=1 cellspacing=0 cellpadding=0
+  style='border-collapse:collapse;border:none;mso-border-top-alt:solid  #E7273A 1.5pt;
+  mso-yfti-tbllook:1184;mso-padding-alt:0cm 5.4pt 0cm 5.4pt;mso-border-insideh:
+  none;mso-border-insidev:none'>
+  <tr style='mso-yfti-irow:0;mso-yfti-firstrow:yes;mso-yfti-lastrow:yes'>
+   <td width=288 valign=top style='width:311pt;border:none;border-top:solid  #E7273A 1.5pt;
+   padding:0cm 5.4pt 0cm 5.4pt'>
+   <p class=MsoFooter align=left style='text-align:left'><span
+   style='font-family:"open sans","Lucida Sans", "sans-serif";font-weight:lighter;'>provincia de hispania<o:p></o:p></span></p>
+   </td>
+   <td width=288 valign=top style='width:216.1pt;border:none;border-top:solid  #E7273A 1.5pt;
+   padding:0cm 5.4pt 0cm 5.4pt'>
+   <p class=MsoFooter align=right style='text-align:right'><span
+   style='font-size:9.0pt;mso-bidi-font-size:12.0pt;font-family:"open sans","Lucida Sans", "sans-serif";
+   color:#464646;font-weight:lighter;'>página </span><!--[if supportFields]><span style='font-size:
+   9.0pt;mso-bidi-font-size:12.0pt;font-family:"open sans","Lucida Sans", "sans-serif";font-weight:lighter;color:#464646'><span
+   style='mso-element:field-begin'></span>PAGE<span style='mso-spacerun:yes'>  
+   </span>\* MERGEFORMAT<span style='mso-element:field-separator'></span></span><![endif]--><span
+   style='font-size:9.0pt;mso-bidi-font-size:12.0pt;font-family:"open sans","Lucida Sans", "sans-serif";font-weight:lighter;
+   color:#464646'><span style='mso-no-proof:yes'>1</span></span><!--[if supportFields]><span
+   style='font-size:9.0pt;mso-bidi-font-size:12.0pt;font-family:"open sans","Lucida Sans", "sans-serif";font-weight:lighter;
+   color:#464646'><span style='mso-element:field-end'></span></span><![endif]--><span
+   style='font-size:9.0pt;mso-bidi-font-size:12.0pt;font-family:"open sans","Lucida Sans", "sans-serif";font-weight:lighter;
+   color:#464646'><o:p></o:p></span></p>
+   </td>
+  </tr>
+ </table>
+</w:Sdt>
+<p class=MsoFooter><o:p>&nbsp;</o:p></p>
+</div>
+<div style='mso-element:header' id=fh1>
+<p class=MsoHeader><o:p>&nbsp;</o:p></p>
+</div>
+<div style='mso-element:footer' id=ff1>
+<p class=MsoFooter><o:p>&nbsp;</o:p></p>
+</div>
+</div>
+</body>
+</html>

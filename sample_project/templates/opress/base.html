@@ -1,0 +1,119 @@
+{% extends "opress/minimum.html" %}
+{% load staticfiles %}
+{% load cache %}
+{% load mptt_tags %}
+{% block body %}
+    {% cache 300 cabecera %}
+    <header class="container">
+        <div class="header hidden-xs">
+            <h1 style="font-weight:lighter;">dominicos <a href="{% url 'opress:index' %}"><img src="{% static "[:SAMPLE_PROJECT:]/images/spacer.gif" %}" width="150" height="103" alt="ir a portada"/></a><small> provincia de <span class="naranja">hispania</span></small></h1>
+        </div>
+        <nav class="navbar navbar-static-top" role="navigation">
+            <div>
+                <!-- Brand and toggle get grouped for better mobile display -->
+                <div class="navbar-header headm visible-xs-block">
+               		<a class="navbar-brand" href="/">dominicos</a>
+                    <a href="{% url 'opress:index' %}"><img width="25%" height="50px" title="dominicos - inicio" alt="dominicos - inicio" src="{% static "[:SAMPLE_PROJECT:]/images/spacer.gif" %}"></a>
+					<span class="naranja">hispania</span>
+               </div>
+                <div class="navbar-header menum visible-xs-block">
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                        <span class="sr-only">Abrir menú</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <span class="menum-text">MENU</span>
+                </div>
+                <!-- Collect the nav links, forms, and other content for toggling -->
+                <div class="collapse navbar-collapse submenum" id="bs-example-navbar-collapse-1">
+                    <ul class="nav navbar-nav">
+                    {% recursetree arbol_paginas %}
+                        <li class="{% if node.pk == pagina.pk or node.pk == seccion.pk %}active{% endif %}{% if node.get_children and not node.tiene_menu_bloque %} dropdown{% if node.is_child_node %} dropdown-submenu{% endif %}{% endif %}">
+                            <a href="{{ node.get_absolute_url }}"{% if not node.is_leaf_node and not node.tiene_menu_bloque %} data-toggle="dropdown" aria-haspopup="true" role="button" aria-expanded="false" class="dropdown-toggle disabled" {% endif %}>{{ node.menu|default:node.titulo }}{% if node.get_children and not node.is_child_node %}<span class="caret"></span>{% endif %}</a>
+                        {% if node.get_children and not node.tiene_menu_bloque %}
+                            <ul class="dropdown-menu"{% if not node.is_child_node %} role="menu" data-hover="dropdown"{% endif %}>
+                                {{ children }}
+                            </ul>
+                        {% endif %}
+                        </li>
+                    {% endrecursetree %}
+                        <li class="pull-right">
+                            <nav class="nav navbar-nav navbar-right hidden-sm hidden-xs">
+                                <form class="navbar-form" role="search" method="get" action="{% url 'opress:search' %}">
+                                    <div class="input-group input-group-sm">
+                                        <input type="text" name="q" class="form-control" placeholder="Buscar...">
+                                    </div>
+                                    <button type="submit" class="btn btn-default btn-sm">Buscar</button>
+                                </form>
+                            </nav>
+                        </li>
+                        <li>
+                            <form class="navbar-form visible-xs-block" role="search" method="get" action="{% url 'opress:search' %}">
+                                <div class="form-group">
+                                    <input type="text" name="q" class="form-control" placeholder="Buscar...">
+                                </div>
+                                <button type="submit" class="btn btn-default">Buscar</button>
+                            </form>
+                        </li>
+                    </ul>
+                </div><!-- /.navbar-collapse -->
+            </div><!-- /.container-fluid -->
+        </nav>
+	</header>
+    {% endcache %}
+    <main class="container">
+    	{% block content %}{% endblock %}
+    </main>
+    <footer class="container">	
+        <div class="row pie">
+            <div class="col-xs-12 col-sm-5 col-md-5">
+              <p id="pie-tit">
+              	  <span class="gris">dominicos</span>
+                  <br>
+                  <small><span class="gris-claro">provincia de</span> hispania</small>
+              </p>
+              <p>
+                    Dirección:<br>
+                    <strong>Curia Provincia de Hispania</strong><br>
+                    C/ Julián Gayarre, 1, Madrid 28014 España<br>
+                    <a href="https://www.google.es/maps/place/Calle+Juan+de+Urbieta,+51,+28007+Madrid/@40.4083794,-3.6743731,17z/data=!3m1!4b1!4m2!3m1!1s0xd42261b7b551a49:0x464b3cf8edcf0db9" target="_blank">Ver plano</a> 
+                    <span > / </span>
+                    <a href="{% url 'opress:contact' %}" target="_top">Contactar</a>
+                    {% comment 'Pendiente de hacer' %}
+                    <a href="/">Prensa</a>
+                    <a href="/">RSS</a>
+                    {% endcomment %}
+                    <br>
+                    <hr class="visible-xs">
+                </p>
+            </div>
+			<div class="hidden-xs hidden-sm col-md-3"><img src="{% static "[:SAMPLE_PROJECT:]/images/pie-escudo2.jpg" %}" width="198" height="200" alt=""><br><br></div>
+            <div class="col-xs-12 col-sm-3 col-md-2 pie-avisos">
+           	    <a href="{% url 'opress:static_page' 'aviso-legal' %}">Aviso legal</a> 
+                <br class="hidden-xs"> <span class="visible-xs-inline"> / </span>
+                <a href="{% url 'opress:static_page' 'guia-del-usuario' %}">Guía del usuario</a> 
+                <br class="hidden-xs"> <span class="visible-xs-inline"> / </span>
+                <a href="{% url 'opress:static_page' 'privacidad-y-cookies' %}">Privacidad y cookies</a>
+            </div>
+            <div class="col-xs-12 col-sm-4 col-md-2 realizado">
+                <div class="visible-sm">
+                    <form class="navbar-form" role="search" method="get" action="{% url 'opress:search' %}">
+                        <div class="input-group input-group-sm" style="vertical-align:auto;">
+                            <input type="text" name="q" class="form-control" placeholder="Buscar...">
+                        </div>
+                        <button type="submit" class="btn btn-default btn-sm">Buscar</button>
+                    </form>
+                </div>
+                <hr class="visible-xs">
+                <span class="pie-subtit">Realizada por:</span>
+                <br class="visible-xs">
+                <a target="_blank" href="http://www.dominicos.org">
+                    <img width="123px" height="58px" title="Oficina de Comunicación Dominicos" alt="Oficina de Comunicación Dominicos" src="{% static "[:SAMPLE_PROJECT:]/images/spacer.gif" %}" class="hidden-xs hidden-sm"><span class="visible-xs-inline  visible-sm-inline">Oficina de Comunicación Dominicos</span>
+                </a>
+                <br>
+                <br class="visible-xs">
+            </div>
+        </div>
+    </footer>
+{% endblock %}

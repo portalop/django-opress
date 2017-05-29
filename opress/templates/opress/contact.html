@@ -1,0 +1,24 @@
+{% extends "opress/base.html" %}
+{% block title %}{{ pagina.titulo }} - {% endblock %}
+{% block content %}
+<article class="col-xs-12 col-sm-9 secundaria-texto">
+  <header>
+    <div class="portada">
+      <h1>{{ pagina.titulo }}</h1>
+    </div>
+    <nav>{% include "opress/migas.html" %}</nav>
+    {% if pagina.imagen_cabecera %}
+      <img src="{{ pagina.imagen_cabecera.get_pagina_cabecera_url }}" alt="{{ pagina.imagen_cabecera.title }}" width="100%">
+    {% endif %}
+  </header>
+  <div class="col-md-9 cuerpotexto">
+    {{ pagina.contenido|safe }}
+    <form action="{% url 'opress:contact' %}" method="post" id="contact_form">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <input type="submit" value="Enviar" class="btn btn-primary btn-sm"/>
+    </form>
+    <br><br>
+  </div>
+</article>
+{% endblock %}

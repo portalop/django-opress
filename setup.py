@@ -11,7 +11,7 @@ setup(
     version='0.1',
     packages=find_packages(),
     license='BSD License',  # example license
-    description='A simple Django app to create static pages.',
+    description='A simple Django Content Management System.',
 #    long_description=README,
     url='http://www.dominicos.org/',
     author='Oficina Internet Dominicos',

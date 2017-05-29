@@ -1,7 +1,7 @@
 Metadata-Version: 1.1
 Name: opress
 Version: 0.1
-Summary: A simple Django app to create static pages.
+Summary: A simple Django Content Management System.
 Home-page: http://www.dominicos.org/
 Author: Oficina Internet Dominicos
 Author-email: portalop@dominicos.org

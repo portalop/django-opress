@@ -1,0 +1,25 @@
+{% extends "admin/base.html" %}
+{% load i18n %}
+
+{% block title %}{{ title }} | {% trans '[:PROJECT_TITLE:] - Administración' %}{% endblock %}
+
+{% block branding %}
+<style type="text/css">
+.horizontal1
+{
+	float: left;
+	width: 900px;
+}
+.horizontal2
+{
+	left: 20px;
+	position: relative;
+}
+.vertical
+{
+	clear: both;
+}
+</style>
+{% endblock %}
+
+{% block nav-global %}{% endblock %}

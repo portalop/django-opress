@@ -1,0 +1,46 @@
+{% extends "opress/capitulo2016/base.html" %}
+{% load staticfiles %}
+{% load mptt_tags %}
+{% block title %}{{ pagina.titulo }} - {% endblock %}
+{% block content %}
+<section>
+     <header class="row">
+            <div class="col-md-12">
+                <div class="portada">
+                  <h1>{{ pagina.titulo }}</h1>
+                </div>
+                {% include "opress/migas.html" %}
+          </div>
+     </header>
+     <div class="row">
+        <div class="col-xs-12 col-sm-12 secundaria-texto-news">
+            <div class="row">
+                {% for categoria in document_list %}
+                  {% for document in categoria.documento_set.all|dictsortreversed:"id" %}
+                    <article class="news-secun docus col-xs-12">
+                        <a href="{% url "opress:static_page" "capitulo-provincial-2016/cronica" %}{{ document.get_url }}" title="{{ document.icono.title }}">
+                            <img src="{{ document.icono.get_documento_icono_url }}" alt="{{ document.icono.title }}"/>
+                        </a>
+                        <h2><a href="{% url "opress:static_page" "capitulo-provincial-2016/cronica" %}{{ document.get_url }}">{{ document.nombre }}</a></h2>
+                        <span>{{ document.fecha }}</span><br>
+                        <p>{{ document.descripcion|safe }}</p>
+                    </article>
+                    {% if forloop.counter|divisibleby:2 %}
+                    <div class="clearfix hidden-xs"></div>
+                    {% endif %}
+                  {% endfor %}
+                {% endfor %}
+            </div>
+             <hr class="hidden-xs"/>
+            {% if documents_list.has_next %}
+                 <span class="pull-right"><a href="?page={{ documents_list.next_page_number }}">Posteriores</a> <span class="glyphicon glyphicon-chevron-right" style="color:#E94C06"></span></span></h2>
+            {% endif %}
+            {% if documents_list.has_previous %}
+                <span class="pull-left"><span class="glyphicon glyphicon-chevron-left" style="color:#E94C06"></span> <a href="?page={{ documents_list.previous_page_number }}">Anteriores</a></span></h2>
+            {% endif %}
+            <div class="clearfix"><br /></div>
+            <hr/>
+        </div>    
+    </div>
+</section>
+{% endblock %}

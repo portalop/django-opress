@@ -1,0 +1,79 @@
+{% extends "opress/capitulo2016/base.html" %}
+{% load staticfiles %}
+{% load mptt_tags %}
+{% block title %}{{ pagina.titulo }} - {% endblock %}
+{% block content %}
+  <div class="row">
+       <article>
+{% if bloque.tipo = "flickr" %}
+  {% if bloque.titulo %}
+    <br>
+    <h2 style="text-align:center;">{{ bloque.titulo }}</h2>
+  {% endif %}
+    <div id="nanoGallery{{ bloque.id }}"></div>
+        <script>
+			$(document).ready(function () {
+			  $("#nanoGallery{{ bloque.id }}").nanoGallery({
+                kind: 'flickr',
+                userID: '{{ bloque.flickr_user.user_id }}',
+                photoset: '{{ bloque.flickr_album }}',
+				thumbnailWidth: 150,
+				thumbnailHeight: 150,
+				colorScheme: 'none',
+				thumbnailHoverEffect: [{ name: 'labelAppear75', duration: 300 }],
+				theme: 'light',
+				thumbnailGutterWidth : 0,
+				thumbnailGutterHeight : 0,
+				i18n: { 
+                    thumbnailImageDescription: 'Ver foto',
+                    paginationPrevious: 'Anterior',
+                    paginationNext: 'Siguiente',
+                },
+				thumbnailLabel: { display: true, position: 'overImageOnMiddle', align: 'center' }
+			  });
+			});
+        </script>
+        <br>
+      <hr>
+      <aside class="hidden-xs hidden-sm">
+                    Compártelo:<br>
+                    <br>
+                    <!-- Go to www.addthis.com/dashboard to customize your tools -->
+                    <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-54c7d70a520a9988" async="async"></script>
+                    <div class="col-md-2">
+                    <a class="addthis_button_tweet"></a>
+                    </div>
+                    <div class="col-md-2">
+                    <a class="addthis_button_facebook_share" fb:share:layout="button_count"></a>
+                    </div>
+                    <div class="col-md-2">
+                    <a class="addthis_button_facebook_like" fb:like:layout="button_count"></a>
+                    </div>
+                    <div class="col-md-2">
+                    <a class="addthis_button_google_plusone" g:plusone:size="medium"></a>
+                    </div>
+                    <div class="col-md-2">
+                    <a class="addthis_button_pinterest_pinit"></a>
+                    </div>
+                    <div class="col-md-2">
+                    <a class="addthis_button_compact"></a>
+                    </div>
+                    <!-- ADDTHIS BUTTON END -->
+           <hr>
+           <br><br>
+      </aside>
+      <aside class="hidden-md hidden-lg">
+                    Compártelo:<br>
+                    <br>
+                    
+<a href="https://api.addthis.com/oexchange/0.8/forward/facebook/offer?url=http%3A%2F%2Fwww.addthis.com&pubid=ra-54c7d70a520a9988&ct=1&title=AddThis%20-%20Get%20likes%2C%20get%20shares%2C%20get%20followers&pco=tbxnj-1.0" target="_blank"><img src="https://cache.addthiscdn.com/icons/v2/thumbs/32x32/facebook.png" border="0" alt="Facebook"/></a>
+<a href="https://api.addthis.com/oexchange/0.8/forward/twitter/offer?url=http%3A%2F%2Fwww.addthis.com&pubid=ra-54c7d70a520a9988&ct=1&title=AddThis%20-%20Get%20likes%2C%20get%20shares%2C%20get%20followers&pco=tbxnj-1.0" target="_blank"><img src="https://cache.addthiscdn.com/icons/v2/thumbs/32x32/twitter.png" border="0" alt="Twitter"/></a>
+<a href="https://api.addthis.com/oexchange/0.8/forward/google_plusone_share/offer?url=http%3A%2F%2Fwww.addthis.com&pubid=ra-54c7d70a520a9988&ct=1&title=AddThis%20-%20Get%20likes%2C%20get%20shares%2C%20get%20followers&pco=tbxnj-1.0" target="_blank"><img src="https://cache.addthiscdn.com/icons/v2/thumbs/32x32/google_plusone_share.png" border="0" alt="Google+"/></a>
+<a href="https://api.addthis.com/oexchange/0.8/forward/linkedin/offer?url=http%3A%2F%2Fwww.addthis.com&pubid=ra-54c7d70a520a9988&ct=1&title=AddThis%20-%20Get%20likes%2C%20get%20shares%2C%20get%20followers&pco=tbxnj-1.0" target="_blank"><img src="https://cache.addthiscdn.com/icons/v2/thumbs/32x32/linkedin.png" border="0" alt="LinkedIn"/></a>
+<a href="https://api.addthis.com/oexchange/0.8/forward/pinterest/offer?url=http%3A%2F%2Fwww.addthis.com&pubid=ra-54c7d70a520a9988&ct=1&title=AddThis%20-%20Get%20likes%2C%20get%20shares%2C%20get%20followers&pco=tbxnj-1.0" target="_blank"><img src="https://cache.addthiscdn.com/icons/v2/thumbs/32x32/pinterest.png" border="0" alt="Pinterest"/></a>
+<a href="https://www.addthis.com/bookmark.php?source=tbx32nj-1.0&v=300&url=http%3A%2F%2Fwww.addthis.com&pubid=ra-54c7d70a520a9988&ct=1&title=AddThis%20-%20Get%20likes%2C%20get%20shares%2C%20get%20followers&pco=tbxnj-1.0" target="_blank"><img src="https://cache.addthiscdn.com/icons/v2/thumbs/32x32/addthis.png" border="0" alt="Addthis"/></a>
+
+                    <hr>
+           </aside>
+{% endif %}
+{% endblock %}

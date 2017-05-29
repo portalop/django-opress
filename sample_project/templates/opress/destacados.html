@@ -1,0 +1,38 @@
+{% load staticfiles %}
+<section>
+        <div id="carousel" class="carousel slide" data-ride="carousel">
+            <!-- Indicators -->
+            {% if slider_list.count > 1 %}
+              <ol class="carousel-indicators hidden-xs">
+              {% for slide in slider_list %}
+                <li data-target="#carousel" data-slide-to="{{ forloop.counter0 }}"{% if forloop.first %} class="active"{% endif %}></li>
+              {% endfor %}
+              </ol>
+            {% endif %}
+          
+            <!-- Wrapper for slides -->
+            <div class="carousel-inner">
+            {% for slide in slider_list %}
+              <div class="item{% if forloop.first %} active{% endif %}">
+                <img src="{{ slide.imagen.get_portada_destacado_url }}" alt="{{ slide.imagen.title }}">
+                <div class="carousel-caption">
+                  <h3><span>{{ slide.titulo }}</span></h3>
+                  <p class="hidden-xs hidden-sm">{{ slide.entradilla }}</p>
+                  <a href="{{ slide.enlace }}" class="btn btn-primary btn-sm">Ver más</a>
+                </div>
+              </div>
+            {% endfor %}
+            </div>
+            <!-- Controls -->
+            {% if slider_list.count > 1 %}
+              <a class="left carousel-control" href="#carousel" role="button" data-slide="prev">
+                <img src="{% static "[:SAMPLE_PROJECT:]/images/flecha-izq.png" %}" alt="<" class="hidden-xs hidden-sm">
+                <span class="glyphicon glyphicon-chevron-left naranja hidden-md hidden-lg"></span>
+              </a>
+              <a class="right carousel-control" href="#carousel" role="button" data-slide="next">
+                <img alt=">" src="{% static "[:SAMPLE_PROJECT:]/images/flecha-dch.png" %}" class="hidden-xs hidden-sm">
+                <span class="glyphicon glyphicon-chevron-right naranja hidden-md hidden-lg"></span>
+              </a>
+            {% endif %}
+        </div>
+</section>

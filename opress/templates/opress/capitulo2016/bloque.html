@@ -1,0 +1,129 @@
+{% if bloque.tipo == "html" %}
+    {% if bloque.titulo %}
+        <h2>{{ bloque.titulo }}</h2>
+    {% endif %}
+        {{ bloque.contenido|safe }}
+
+{% endif %}
+{% if bloque.tipo == "card" %}
+    {% if bloque.titulo %}
+        <h2>{{ bloque.titulo }}</h2>
+    {% endif %}
+    <div class="row ficha">   
+    	<div class="col-xs-12 col-sm-7 col-middle ficha-imagen" >
+                <img src="{{ bloque.imagen.get_bloque_ficha_url }}" alt="{{ bloque.imagen.title }}">
+        </div>
+        <div class="col-xs-12 col-sm-5 ficha-descripcion">
+                    {{ bloque.contenido|safe }}
+        </div>
+    </div>
+    <nav class="col-xs-12 ficha-menu">
+        {% for hija in bloque.get_menu %}
+            {% if forloop.first %}
+           <span><a href="{{ hija.get_absolute_url }}"{% if pagina.pk = hija.pk %} class="active"{% endif %}>Presentación</a></span>
+            {% else %}
+           <span><a href="{{ hija.get_absolute_url }}"{% if pagina.pk = hija.pk %} class="active"{% endif %}>{{ hija.menu|default:hija.titulo }}</a></span>
+            {% endif %}
+        {% endfor %}
+    </nav>
+{% endif %}
+{% if bloque.tipo == "image" %} 
+        <img src="{{ bloque.imagen.get_bloque_ancho_completo_url }}" alt="{{ bloque.imagen.title }}" width="100%">
+{% endif %}
+{% if bloque.tipo == "timeline" %}
+    {% if bloque.titulo %}
+        <h2>{{ bloque.titulo }}</h2>
+    {% endif %}
+    <script>
+        $(function(){
+            $('#timeline{{ bloque.timeline.id }}').timelinr({
+                orientation: '{{ bloque.timeline.orientacion }}',
+                containerDiv: '#timeline{{ bloque.timeline.id }}',
+                datesDiv: '#dates{{ bloque.timeline.id }}',
+                issuesDiv : '#issues{{ bloque.timeline.id }}',
+                prevButton: '#prev{{ bloque.timeline.id }}',
+                nextButton: '#next{{ bloque.timeline.id }}',
+                autoPlay: '{{ bloque.timeline.auto_play }}'
+            });
+        });
+    </script>
+	<div id="timeline{{ bloque.timeline.id }}" class="timeline">
+		<ul id="dates{{ bloque.timeline.id }}" class="dates">
+        {% for timeline_item in bloque.timeline.timelineitem_set.all %}
+	        <li><a href="#t_item{{ bloque.timeline.id }}_{{ timeline_item.id }}">{{ timeline_item.fecha }}</a></li>
+        {% endfor %}
+		</ul>
+		<ul id="issues{{ bloque.timeline.id }}" class="issues">
+        {% for timeline_item in bloque.timeline.timelineitem_set.all %}
+			<li id="t_item{{ bloque.timeline.id }}_{{ timeline_item.id }}">
+            {% if timeline_item.imagen %}
+				<img src="{{ timeline_item.imagen.get_page_icon_url }}" alt="{{ timeline_item.imagen.title }}">
+            {% endif %}
+				<h1>{{ timeline_item.titulo }}</h1>
+				{{ timeline_item.contenido|safe }}
+			</li>
+        {% endfor %}
+		</ul>
+		<div class="grad_left"></div>
+		<div class="grad_right"></div>
+		<a href="#" id="next{{ bloque.timeline.id }}" class="next">+</a>
+		<a href="#" id="prev{{ bloque.timeline.id }}" class="prev">-</a>
+	</div>
+{% endif %}
+{% if bloque.tipo == "flickr" %}
+  {% if bloque.titulo %}
+    <br>
+    <h3 style="text-align:center;">{{ bloque.titulo }}</h3>
+  {% endif %}
+    <div id="nanoGallery{{ bloque.id }}"></div>
+        <script>
+			$(document).ready(function () {
+			  $("#nanoGallery{{ bloque.id }}").nanoGallery({
+                kind: 'flickr',
+                userID: '{{ bloque.flickr_user.user_id }}',
+                photoset: '{{ bloque.flickr_album }}',
+				thumbnailWidth: 150,
+				thumbnailHeight: 150,
+				colorScheme: 'none',
+                paginationMaxLinesPerPage: 1,
+				thumbnailHoverEffect: [{ name: 'labelAppear75', duration: 300 }],
+				theme: 'light',
+				thumbnailGutterWidth : 0,
+				thumbnailGutterHeight : 0,
+				i18n: { 
+                    thumbnailImageDescription: 'Ver foto',
+                    paginationPrevious: 'Anterior',
+                    paginationNext: 'Siguiente',
+                },
+				thumbnailLabel: { display: true, position: 'overImageOnMiddle', align: 'center' }
+			  });
+			});
+        </script>
+        <br>
+{% endif %}
+{% if bloque.tipo == "map" %} 
+        {% if bloque.titulo %}
+        <h2>{{ bloque.titulo }}</h2>
+        {% endif %}
+        <iframe src="{{ bloque.mapa.get_url }}" width="540" height="540" frameborder="0" scrolling="no" marginheight="0" marginwidth="0"></iframe>
+        <br>
+        <small>Ver <a href="{{ bloque.mapa.get_url }}" target="_blank">{{ bloque.mapa.mapa.nombre }}</a> en un mapa más grande</small>
+{% endif %}
+{% if bloque.tipo == "youtube" %}
+    {% if bloque.titulo %}
+        <h2>{{ bloque.titulo }}</h2>
+    {% endif %}
+    	<div style="height:0px;
+    width:100%;
+    max-width:560px;
+    padding-top:56.25%;
+    position:relative;
+">
+        <iframe src="https://www.youtube.com/embed/{{ bloque.youtube_id }}" frameborder="0" allowfullscreen style="   position:absolute;
+    height:100%;
+    width:100%;
+    top:0px;
+    left:0px;"></iframe>
+        </div>
+        <br><br>
+{% endif %}

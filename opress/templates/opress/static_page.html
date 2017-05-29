@@ -1,0 +1,100 @@
+{% extends "opress/base.html" %}
+{% load staticfiles %}
+{% load mptt_tags %}
+{% block title %}{{ pagina.titulo }} - {% endblock %}
+{% block content %}
+  <div class="row">
+      <nav class="col-xs-12 col-sm-3 secundaria-menu">
+          <h2><a href="{{ seccion.get_absolute_url }}">{{ seccion.menu|default:seccion.titulo }}</a></h2>
+          <ul class="nav nav-pills nav-stacked">
+          {% recursetree arbol_seccion %}
+              <li{% if node.pk == pagina.pk %} class="active"{% endif %}>
+                  <a href="{{ node.get_absolute_url }}">{{ node.menu|default:node.titulo }}</a>
+              {% if node.get_children and not node.tiene_menu_bloque %}
+                  <ul class="children">
+                      {{ children }}
+                  </ul>
+              {% endif %}
+              </li>
+          {% endrecursetree %}
+          </ul>
+      </nav>
+       <article class="col-xs-12 col-sm-9 secundaria-texto">
+          <header>
+              <div class="portada">
+                  <h1>{{ pagina.titulo }}</h1>
+              </div>
+              <nav>{% include "opress/migas.html" %}</nav>
+              {% if slider_list %}
+                {% include "opress/destacados.html" %}
+              {% else %}
+                {% if pagina.imagen_cabecera %}
+               <img src="{{ pagina.imagen_cabecera.get_pagina_cabecera_url }}" alt="{{ pagina.imagen_cabecera.title }}" width="100%" />
+                {% endif %}
+              {% endif %}
+              {% for bloque in bloque_list.all %}
+                {% include "opress/bloque.html" %}
+              {% endfor %}
+          </header>
+          <div class="col-md-9 cuerpotexto">
+              {{ pagina.contenido|safe }}
+              {% for bloque in pagina.bloques_pie.all %}
+                {% include "opress/bloque.html" %}
+              {% endfor %}
+              <hr>
+           </div>
+            <aside class="col-md-3 hidden-xs hidden-sm">
+                    Compártelo:<br>
+                    <br>
+                    <!-- Go to www.addthis.com/dashboard to customize your tools -->
+                    <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-54c7d70a520a9988" async="async"></script>
+                    <a class="addthis_button_tweet"></a>
+                    <br><br>
+                    <a class="addthis_button_facebook_share" fb:share:layout="button_count"></a>
+                    <br><br>
+                    <a class="addthis_button_facebook_like" fb:like:layout="button_count"></a>
+                    <br><br>
+                    <a class="addthis_button_google_plusone" g:plusone:size="medium"></a>
+                    <br><br>
+                    <a class="addthis_button_pinterest_pinit"></a>
+                    <br>
+                    <a class="addthis_button_compact"></a>
+                    <!-- ADDTHIS BUTTON END -->
+           </aside>
+            <aside class="col-md-3 hidden-md hidden-lg">
+                    Compártelo:<br>
+                    <br>
+                    
+<a href="https://api.addthis.com/oexchange/0.8/forward/facebook/offer?url=http%3A%2F%2Fwww.addthis.com&pubid=ra-54c7d70a520a9988&ct=1&title=AddThis%20-%20Get%20likes%2C%20get%20shares%2C%20get%20followers&pco=tbxnj-1.0" target="_blank"><img src="https://cache.addthiscdn.com/icons/v2/thumbs/32x32/facebook.png" border="0" alt="Facebook"/></a>
+<a href="https://api.addthis.com/oexchange/0.8/forward/twitter/offer?url=http%3A%2F%2Fwww.addthis.com&pubid=ra-54c7d70a520a9988&ct=1&title=AddThis%20-%20Get%20likes%2C%20get%20shares%2C%20get%20followers&pco=tbxnj-1.0" target="_blank"><img src="https://cache.addthiscdn.com/icons/v2/thumbs/32x32/twitter.png" border="0" alt="Twitter"/></a>
+<a href="https://api.addthis.com/oexchange/0.8/forward/google_plusone_share/offer?url=http%3A%2F%2Fwww.addthis.com&pubid=ra-54c7d70a520a9988&ct=1&title=AddThis%20-%20Get%20likes%2C%20get%20shares%2C%20get%20followers&pco=tbxnj-1.0" target="_blank"><img src="https://cache.addthiscdn.com/icons/v2/thumbs/32x32/google_plusone_share.png" border="0" alt="Google+"/></a>
+<a href="https://api.addthis.com/oexchange/0.8/forward/linkedin/offer?url=http%3A%2F%2Fwww.addthis.com&pubid=ra-54c7d70a520a9988&ct=1&title=AddThis%20-%20Get%20likes%2C%20get%20shares%2C%20get%20followers&pco=tbxnj-1.0" target="_blank"><img src="https://cache.addthiscdn.com/icons/v2/thumbs/32x32/linkedin.png" border="0" alt="LinkedIn"/></a>
+<a href="https://api.addthis.com/oexchange/0.8/forward/pinterest/offer?url=http%3A%2F%2Fwww.addthis.com&pubid=ra-54c7d70a520a9988&ct=1&title=AddThis%20-%20Get%20likes%2C%20get%20shares%2C%20get%20followers&pco=tbxnj-1.0" target="_blank"><img src="https://cache.addthiscdn.com/icons/v2/thumbs/32x32/pinterest.png" border="0" alt="Pinterest"/></a>
+<a href="https://www.addthis.com/bookmark.php?source=tbx32nj-1.0&v=300&url=http%3A%2F%2Fwww.addthis.com&pubid=ra-54c7d70a520a9988&ct=1&title=AddThis%20-%20Get%20likes%2C%20get%20shares%2C%20get%20followers&pco=tbxnj-1.0" target="_blank"><img src="https://cache.addthiscdn.com/icons/v2/thumbs/32x32/addthis.png" border="0" alt="Addthis"/></a>
+
+                    <hr>
+           </aside>
+           {% if not pagina.is_leaf_node and not pagina.tiene_menu_bloque %}
+           <footer class="row">
+                  <nav>
+                      {% for hija in pagina.get_children %}
+                      <div class="col-xs-6 col-sm-4 secundaria-texto-subsec">
+                       {% if hija.icono %}
+                       <a href="{{ hija.get_absolute_url }}"><img src="{{ hija.icono.get_pagina_icono_url }}" alt="{{ hija.titulo }}" width="100%"></a><br>
+                       {% endif %}
+                      <a href="{{ hija.get_absolute_url }}">{{ hija.titulo }}</a><br>
+                      </div>
+                      {% if forloop.counter|divisibleby:3 %}
+                   		<div class="clearfix hidden-xs"><br /></div>
+	                  {% endif %}
+                      {% if forloop.counter|divisibleby:2 %}
+                   		<div class="clearfix visible-xs-inline"><br /></div>
+	                  {% endif %}
+                      {% endfor %}
+                  </nav>
+           </footer>
+            {% endif %}
+          
+       </article> 
+  </div>
+{% endblock %}

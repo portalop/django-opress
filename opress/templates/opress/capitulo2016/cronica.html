@@ -1,0 +1,67 @@
+{% extends "opress/capitulo2016/base.html" %}
+{% load staticfiles %}
+{% load static %}
+{% load mptt_tags %}
+{% block title %}{{ documento.nombre }} - {% endblock %}
+{% block content %}
+  <section>
+     <header class="row">
+        	<div class="col-md-12">
+                <div class="portada">
+                  <h2>Crónicas</h2>
+                </div>
+                {% include "opress/migas.html" %}
+       	  </div>
+     </header>
+     <div class="row">
+        <article class="col-xs-12 col-sm-12 secundaria-documento">
+        	<header>
+                <br>
+                <h1>{{ documento.nombre }}</h1>
+                <strong class="naranja">{{ documento.fecha }}</strong>{% if documento.archivo %} / <a href="{% get_media_prefix %}{{ documento.archivo }}" target="_blank">Descargar en PDF</a>{% endif %}
+            </header>
+            <div class="col-md-9 cuerpotexto">
+	           <strong>{{ documento.descripcion|safe }}</strong>
+               <br><br>
+               <img src="{{ documento.icono.get_noticia_imagen_url }}" alt="{{ documento.icono.title }}" style="float:left;"/> {{ documento.contenido|safe }}
+              {% if documento.archivo %}
+                <p class="alert alert-warning">
+                  <span class="glyphicon glyphicon-download-alt naranja"  aria-hidden="true" style="font-size:20px"></span> <a href="{% get_media_prefix %}{{ documento.archivo }}" target="_blank">Descargar el documento en formato PDF</a>
+                </p>
+              {% endif %}
+            </div>
+            <aside class="col-md-3 hidden-xs hidden-sm">
+                    Compártelo:<br>
+                    <br>
+                    <!-- Go to www.addthis.com/dashboard to customize your tools -->
+                    <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-54c7d70a520a9988" async="async"></script>
+                    <a class="addthis_button_tweet"></a>
+                    <br><br>
+                    <a class="addthis_button_facebook_share" fb:share:layout="button_count"></a>
+                    <br><br>
+                    <a class="addthis_button_facebook_like" fb:like:layout="button_count"></a>
+                    <br><br>
+                    <a class="addthis_button_google_plusone" g:plusone:size="medium"></a>
+                    <br><br>
+                    <a class="addthis_button_pinterest_pinit"></a>
+                    <br>
+                    <a class="addthis_button_compact"></a>
+                    <!-- ADDTHIS BUTTON END -->
+           </aside>
+            <aside class="col-md-3 hidden-md hidden-lg">
+                    Compártelo:<br>
+                    <br>
+                    
+<a href="https://api.addthis.com/oexchange/0.8/forward/facebook/offer?url=http%3A%2F%2Fwww.addthis.com&pubid=ra-54c7d70a520a9988&ct=1&title=AddThis%20-%20Get%20likes%2C%20get%20shares%2C%20get%20followers&pco=tbxnj-1.0" target="_blank"><img src="https://cache.addthiscdn.com/icons/v2/thumbs/32x32/facebook.png" border="0" alt="Facebook"/></a>
+<a href="https://api.addthis.com/oexchange/0.8/forward/twitter/offer?url=http%3A%2F%2Fwww.addthis.com&pubid=ra-54c7d70a520a9988&ct=1&title=AddThis%20-%20Get%20likes%2C%20get%20shares%2C%20get%20followers&pco=tbxnj-1.0" target="_blank"><img src="https://cache.addthiscdn.com/icons/v2/thumbs/32x32/twitter.png" border="0" alt="Twitter"/></a>
+<a href="https://api.addthis.com/oexchange/0.8/forward/google_plusone_share/offer?url=http%3A%2F%2Fwww.addthis.com&pubid=ra-54c7d70a520a9988&ct=1&title=AddThis%20-%20Get%20likes%2C%20get%20shares%2C%20get%20followers&pco=tbxnj-1.0" target="_blank"><img src="https://cache.addthiscdn.com/icons/v2/thumbs/32x32/google_plusone_share.png" border="0" alt="Google+"/></a>
+<a href="https://api.addthis.com/oexchange/0.8/forward/linkedin/offer?url=http%3A%2F%2Fwww.addthis.com&pubid=ra-54c7d70a520a9988&ct=1&title=AddThis%20-%20Get%20likes%2C%20get%20shares%2C%20get%20followers&pco=tbxnj-1.0" target="_blank"><img src="https://cache.addthiscdn.com/icons/v2/thumbs/32x32/linkedin.png" border="0" alt="LinkedIn"/></a>
+<a href="https://api.addthis.com/oexchange/0.8/forward/pinterest/offer?url=http%3A%2F%2Fwww.addthis.com&pubid=ra-54c7d70a520a9988&ct=1&title=AddThis%20-%20Get%20likes%2C%20get%20shares%2C%20get%20followers&pco=tbxnj-1.0" target="_blank"><img src="https://cache.addthiscdn.com/icons/v2/thumbs/32x32/pinterest.png" border="0" alt="Pinterest"/></a>
+<a href="https://www.addthis.com/bookmark.php?source=tbx32nj-1.0&v=300&url=http%3A%2F%2Fwww.addthis.com&pubid=ra-54c7d70a520a9988&ct=1&title=AddThis%20-%20Get%20likes%2C%20get%20shares%2C%20get%20followers&pco=tbxnj-1.0" target="_blank"><img src="https://cache.addthiscdn.com/icons/v2/thumbs/32x32/addthis.png" border="0" alt="Addthis"/></a>
+
+                    <hr>
+           </aside>
+        </article>
+     </div>
+</section>
+{% endblock %}

@@ -1,0 +1,21 @@
+              <section>
+                {% for aparicion in pagina.aparicionprensa_set.all|dictsortreversed:"fecha" %}
+                  <article class="news-secun">
+                         <a href="{{ MEDIA_URL }}{{ aparicion.archivo }}" target="_blank"> <img src="{{ aparicion.icono.get_prensa_icono_url }}" style="float: left" /></a>
+                        <em>{{ aparicion.fecha }}</em>
+                    
+                    <p>
+                        <strong>{{ aparicion.medio }}</strong><br />
+                        {% if aparicion.enlace %}
+                            <a href="{{ aparicion.enlace }}" target="_blank">{{ aparicion.titulo }}</a>
+                        {% else %}
+                            {% if aparicion.archivo %}
+                                <a href="{{ MEDIA_URL }}{{ aparicion.archivo }}" target="_blank">{{ aparicion.titulo }}</a>
+                            {% endif %}
+                        {% endif %}
+                    </p>
+                    {{ aparicion.descripcion }}
+                  </article>
+                {% endfor %}
+              </section>
+              <div class="clearfix hidden-xs"></div>

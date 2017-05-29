@@ -1,0 +1,7 @@
+.idea
+**/*.tar.gz
+*.pyc
+*.log*
+media/
+**/settings.py
+node_modules/

@@ -25,6 +25,8 @@ opress/management/commands/__init__.py
 opress/management/commands/clear_cache.py
 opress/management/commands/read_rss.py
 opress/management/commands/update_multimedia.py
+opress/migrations/0001_initial.py
+opress/migrations/0002_opress_photosizes.py
 opress/static/colorbox/css/colorbox.css
 opress/static/colorbox/images/border.png
 opress/static/colorbox/images/controls.png

@@ -1,0 +1,54 @@
+{% extends "opress/base.html" %}
+{% load staticfiles %}
+{% load mptt_tags %}
+{% block title %}{{ pagina.titulo }} - {% endblock %}
+{% block content %}
+  <section>
+     <header class="row">
+        	<div class="col-md-12">
+                <div class="portada">
+                  <h1>{{ pagina.titulo }}</h1>
+                </div>
+                {% include "opress/migas.html" %}
+       	  </div>
+     </header>
+     <div class="row">
+        <nav class="col-xs-12 col-sm-2 col-md-1 secundaria-menu-news">
+        	<ul class="nav nav-pills nav-stacked">
+          {% for anyo in historico %}
+              <li{% if anyo.year|slugify == year %} class="active"{% endif %}>
+                  <a href="{% url 'opress:news_archive' anyo.year %}">{{ anyo.year }}</a>
+              </li>
+          {% endfor %}
+            </ul>
+        </nav>
+        <div class="col-xs-12 col-sm-10 col-md-11 secundaria-texto-news">
+            <div class="row">
+            	{% for new in news_list %}
+                	<article class="news-secun col-xs-12 col-sm-6 col-md-6">
+                        <h2><a href="{% url 'opress:news_detail' new.slug %}">{{ new.titulo }}</a></h2>
+                        <span>{{ new.fecha }}</span><br>
+                        <a href="{% url 'opress:news_detail' new.slug %}"><img src="{{ new.icono.get_noticias_icono_ennoticias_url }}" alt="{{ new.icono.title }}"{% if new.icono.image.width < 120 %} class="old_image"{% endif %}></a>
+                        <p>{{ new.entradilla }}<br>
+                        <a href="{% url 'opress:news_detail' new.slug %}" class="more hidden-xs">Ver más</a>
+                        </p>
+                    </article>
+                    {% if forloop.counter|divisibleby:2 %}
+                     <div class="clearfix hidden-xs"><br /></div>
+                    {% endif %}
+                {% endfor %}
+             </div>
+             
+             <hr class="hidden-xs"/>
+            {% if news_list.has_next %}
+                 <span class="pull-right"><a href="?page={{ news_list.next_page_number }}">Posteriores</a> <span class="glyphicon glyphicon-chevron-right naranja"></span></span></h2>
+            {% endif %}
+            {% if news_list.has_previous %}
+                <span class="pull-left"><span class="glyphicon glyphicon-chevron-left naranja"></span> <a href="?page={{ news_list.previous_page_number }}">Anteriores</a></span></h2>
+            {% endif %}
+            <div class="clearfix"><br /></div>
+            <hr/>
+        </div>    
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Bootstrap desde 0</title>
+  <!-- Bootstrap -->
+  <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+  <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+  <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  <link rel="stylesheet" type="text/css" href="../static/bootstrap/css/bootstrap.css" />
+  <link rel="stylesheet" type="text/css" href="../static/hispaniae/css/estilos.css" />
+  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+  <!-- Fuentes Typekit: Open Sans y Adelle -->
+  <script type="text/javascript" src="http://use.typekit.net/fpa7jag.js"></script>
+<script type="text/javascript">try{Typekit.load();}catch(e){}</script>
+  </head>
+  
+  <body>
+      <div class="container">     
+        <div class="header hidden-xs">
+          <h1>dominicos <small> Provincia Hispaniae</small>
+          </h1>
+        </div> 
+         <nav class="navbar navbar-static-top" role="navigation">
+          <div class="container-fluid">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              <a class="navbar-brand visible-xs-block" href="#">dominicos.es</a>
+            </div>
+        
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+              
+              <ul class="nav navbar-nav">
+                <li><a href="#" >¿Quiénes somos?</a></li>
+                <li class="dropdown">
+                  <a href="#" class="dropdown-toggle" data-toggle="dropdown">¿Dónde estamos?<span class="caret"></span></a>
+                  <ul class="dropdown-menu" role="menu">
+                    <li><a href="#">España</a></li>
+                    <li><a href="#">Rep. Dominicana</a></li>
+                    <li><a href="#">Venezuela</a></li>
+                    <li class="divider"></li>
+                    <li><a href="#">Guínea</a></li>
+                    <li><a href="#">EEUU</a></li>
+                    <li class="divider visible-xs"></li>
+                  </ul>
+                </li>
+                <li><a href="#">¿Qué hacemos?</a></li>
+                <li><a href="#">Vocaciones</a></li>
+                <li><a href="#" class="small">Documentos</a></li>
+                <li><a href="#" class="small">Contáctanos</a></li>                
+                <li>
+                  <nav class="nav navbar-nav navbar-right hidden-xs">
+                      <form class="navbar-form" role="search">
+                         <div class="input-group input-group-sm">
+                            <input type="text" class="form-control" placeholder="Buscar...">
+                         </div>
+                         <button type="button" class="btn btn-default btn-sm">Buscar</button>
+                       </form>
+                    </nav>
+                </li>
+                <li>
+                   <form class="navbar-form visible-xs" role="search">
+                         <div class="form-group">
+                            <input type="text" class="form-control" placeholder="Buscar...">
+                         </div>
+                         <button type="button" class="btn btn-default">Buscar</button>
+                    </form>
+                </li>
+              </ul>  	
+            </div><!-- /.navbar-collapse -->
+          </div><!-- /.container-fluid -->
+        </nav>
+	  </div>
+      <div class="container">
+        <div id="carousel-example-generic" class="carousel slide" data-ride="carousel">
+            <!-- Indicators -->
+            <ol class="carousel-indicators">
+              <li data-target="#carousel-example-generic" data-slide-to="0" class="active"></li>
+              <li data-target="#carousel-example-generic" data-slide-to="1"></li>
+              <li data-target="#carousel-example-generic" data-slide-to="2"></li>
+            </ol>
+          
+            <!-- Wrapper for slides -->
+            <div class="carousel-inner">
+              <div class="item active">
+                <img src="http://www.jovenesop.org/kit_upload/image/Un%20sitio%20para%20ti.JPG" alt="Alguien 1">
+                <div class="carousel-caption">
+                  <h3>First slide label</h3>
+<p>Praesent commodo cursus magna, vel scelerisque nisl consectetur.</p>
+                </div>
+              </div>
+              <div class="item">
+                <img src="http://www.jovenesop.org/kit_upload/image/2013/SEPTIEMBRE/destacado.jpg" alt="Alguien 2">
+                <div class="carousel-caption">
+                  <h3>Second slide label</h3>
+<p>Praesent commodo cursus magna, vel scelerisque nisl consectetur.</p>
+                </div>
+              </div>
+              <div class="item">
+                <img src="http://www.jovenesop.org/kit_upload/image/SEPT-2012/eucaristia%20comunidad_editado-3-PORTADAx818x341-2.jpg" alt="Alguien 3">
+                <div class="carousel-caption">
+                  <h3>Third slide label</h3>
+<p>Praesent commodo cursus magna, vel scelerisque nisl consectetur.</p>
+                </div>
+              </div>
+            </div>
+          
+            <!-- Controls -->
+            <a class="left carousel-control" href="#carousel-example-generic" role="button" data-slide="prev">
+              <span class="glyphicon glyphicon-chevron-left"></span>
+            </a>
+            <a class="right carousel-control" href="#carousel-example-generic" role="button" data-slide="next">
+              <span class="glyphicon glyphicon-chevron-right"></span>
+            </a>
+          </div>
+      </div>
+      <div class="container">
+    	<div class="row">
+            <div class="col-md-8">
+              <h2>Noticias</h2>
+              <div class="row">
+                <div class="col-md-6">Caminando en Familia hacia el Jubileo 2016</div>
+                <div class="col-md-6">Tesis doctoral en la Facultad de Teología San Vicente Ferrer de Valencia</div>
+              </div>
+            </div>
+            <div class="col-md-4">
+                <h2>Agenda</h2>
+                21 de Junio - 19:00 Final de curso: Eucaristía y ágape.<br/>
+                4 de Agosto - “El espíritu de las Bienaventuranzas y la vida cristiana”
+                
+            </div>
+            <div class="col-md-12">
+            	<h2>¿Dónde Estamos?</h2>
+                <!-- Nav tabs -->
+                <div class="visible-xs">
+                  <a class="btn btn-primary btn-xs" href="#" role="button">España</a>
+                  <a class="btn btn-primary btn-xs" href="#" role="button">Argentina</a>
+                  <a class="btn btn-primary btn-xs" href="#" role="button">Cuba</a>
+                  <a class="btn btn-primary btn-xs" href="#" role="button">Guínea Ecuatorial</a>
+                </div>
+                <ul class="nav nav-tabs hidden-xs" role="tablist">
+                  <li class="active"><a href="#home" role="tab" data-toggle="tab">España</a></li>
+                  <li><a href="#profile" role="tab" data-toggle="tab">Argentina</a></li>
+                  <li><a href="#messages" role="tab" data-toggle="tab">Cuba</a></li>
+                  <li><a href="#settings" role="tab" data-toggle="tab">Guínea Ecuatorial</a></li>
+                </ul>
+                
+                <!-- Tab panes -->
+                <div class="tab-content hidden-xs">
+                    <div class="tab-pane active" id="home">
+                      <ul class="navbar nav nav-pills small" role="tablist">
+                        <li class="active"><a href="#andalu" role="tab" data-toggle="tab" class="btn btn-link">Andalucia</a></li>
+                        <li><a href="#arag" role="tab" data-toggle="tab" class="btn btn-link">Aragón</a></li>
+                        <li><a href="#astur" role="tab" data-toggle="tab" class="btn btn-link">Asturias</a></li>
+                        <li><a href="#balear" role="tab" data-toggle="tab" class="btn btn-link">Baleares</a></li>
+                      </ul>
+                      
+                      <!-- Tab panes -->
+                      <div class="tab-content">
+                        <div class="tab-pane active" id="andalu">
+                        	<div class="row">
+                            	<div class="col-md-2"> Andalucía</div>
+                                <div class="col-md-10">
+                                	<div class="row">
+                                    	<div class="col-md-1"><img src="http://farm9.staticflickr.com/8064/8244007529_d1840e7bfa_s.jpg" alt="..." class="img-thumbnail" width="61" height="61"></div>
+                                     	<div class="col-md-3">Editorial EDIBESA</div>
+                                     	<div class="col-md-1"><img src="http://farm9.staticflickr.com/8064/8244007529_d1840e7bfa_s.jpg" alt="..." class="img-thumbnail" width="61" height="61"></div>
+                                		<div class="col-md-3">Facultad de Teología San Vicente Ferrer de Valencia</div>
+                                        <div class="col-md-1"><img src="http://farm9.staticflickr.com/8064/8244007529_d1840e7bfa_s.jpg" alt="..." class="img-thumbnail" width="61" height="61"></div>
+                                        <div class="col-md-3">Facultad de Teología San Vicente Ferrer de Valencia</div>
+                                    
+                                    </div>
+                                    <div class="row">
+                                    	<div class="col-md-1"><img src="http://farm9.staticflickr.com/8064/8244007529_d1840e7bfa_s.jpg" alt="..." class="img-thumbnail" width="61" height="61"></div>
+                                        <div class="col-md-3">Editorial EDIBESA</div>
+                                        <div class="col-md-1"><img src="http://farm9.staticflickr.com/8064/8244007529_d1840e7bfa_s.jpg" alt="..." class="img-thumbnail" width="61" height="61"></div>
+                                        <div class="col-md-3">Colegio Mayor Santa Cruz La Real de Granada</div>
+                                        <div class="col-md-1"><img src="http://farm9.staticflickr.com/8064/8244007529_d1840e7bfa_s.jpg" alt="..." class="img-thumbnail" width="61" height="61"></div>
+                                        <div class="col-md-3">Colegio Mayor Santa Cruz La Real de Granada</div>
+                                  
+                                 </div>
+                             	</div>
+                        	</div>
+                        </div>
+                        <div class="tab-pane" id="arag">Mustache cliche tempor, williamsburg carles vegan helvetica. Reprehenderit butcher retro keffiyeh dreamcatcher synth. Cosby sweater eu banh mi, qui irure terry richardson ex squid.</div>
+                        <div class="tab-pane" id="astur">Cosby sweater eu banh mi, qui irure terry richardson ex squid. Aliquip placeat salvia cillum iphone. Seitan aliquip quis cardigan american apparel, butcher voluptate nisi qui.</div>
+                        <div class="tab-pane" id="balear">Them jean shorts Austin. Nesciunt tofu stumptown aliqua, retro synth master cleanse. Mustache cliche tempor, williamsburg carles vegan helvetica. Reprehenderit butcher retro keffiyeh dreamcatcher synth. Cosby sweater eu banh mi, qui irure terry richardson ex squid. Aliquip placeat salvia cillum iphone. Seitan aliquip quis cardigan american apparel, butcher voluptate nisi qui.</div>
+                      </div>
+                  
+                  </div>
+                  <div class="tab-pane" id="profile">Mustache cliche tempor, williamsburg carles vegan helvetica. Reprehenderit butcher retro keffiyeh dreamcatcher synth. Cosby sweater eu banh mi, qui irure terry richardson ex squid.</div>
+                  <div class="tab-pane" id="messages">Cosby sweater eu banh mi, qui irure terry richardson ex squid. Aliquip placeat salvia cillum iphone. Seitan aliquip quis cardigan american apparel, butcher voluptate nisi qui.</div>
+                  <div class="tab-pane" id="settings">Them jean shorts Austin. Nesciunt tofu stumptown aliqua, retro synth master cleanse. Mustache cliche tempor, williamsburg carles vegan helvetica. Reprehenderit butcher retro keffiyeh dreamcatcher synth. Cosby sweater eu banh mi, qui irure terry richardson ex squid. Aliquip placeat salvia cillum iphone. Seitan aliquip quis cardigan american apparel, butcher voluptate nisi qui.</div>
+                </div>
+            </div>
+     	 </div>
+         <div class="page-header">
+         	<h2>Instituciones</h2>
+         	<p>Them jean shorts Austin. Nesciunt tofu stumptown aliqua, retro synth master cleanse. Mustache cliche tempor, williamsburg carles vegan helvetica. Reprehenderit butcher retro keffiyeh dreamcatcher synth. Cosby sweater eu banh mi, qui irure terry richardson ex squid. Aliquip placeat salvia cillum iphone. Seitan aliquip quis cardigan american apparel, butcher voluptate nisi qui.</p>
+             <div class="row">
+                 <div class="col-xs-6 col-md-2"><img src="../../bootstrap/img/glyphicons-halflings-white.png" alt="..." class="img-thumbnail"><br>Editorial EDIBESA</div>
+                 <div class="col-xs-6 col-md-2"><img src="../../bootstrap/img/glyphicons-halflings-white.png" alt="..." class="img-thumbnail"><br>Facultad de Teología San Vicente Ferrer de Valencia</div>
+                 <div class="col-xs-6 col-md-2"><img src="../../bootstrap/img/glyphicons-halflings-white.png" alt="..." class="img-thumbnail"><br>Colegio Mayor Santa Cruz La Real de Granada</div>
+                 <div class="col-xs-6 col-md-2"><img src="../../bootstrap/img/glyphicons-halflings-white.png" alt="..." class="img-thumbnail"><br>Facultad de Teología San Esteban</div>
+                 <div class="col-xs-6 col-md-2"><img src="../../bootstrap/img/glyphicons-halflings-white.png" alt="..." class="img-thumbnail"><br>asa de Retiro Scala Coeli</div>
+                 <div class="col-xs-6 col-md-2"><img src="../../bootstrap/img/glyphicons-halflings-white.png" alt="..." class="img-thumbnail"><br>Selvas Amazonicas</div>
+              </div>
+      </div>
+      <div class="container-fluid">
+      	<div class="container">	
+             <div class="page-header">
+             <h2>Pie</h2>
+                 <div class="row">
+                    <div class="col-xs-6 col-sm-4">quienes somos</div>
+					<div class="col-xs-6 col-sm-2"><img src="../../bootstrap/img/glyphicons-halflings-white.png" alt="..." class="img-thumbnail"></div>                    
+                    <div class="col-xs-6 col-sm-4">Aviso legal</div>
+                    <div class="col-xs-6 col-sm-2">realizada por</div>
+                   </div>
+              </div>
+          </div>
+      </div>
+      <div class="container">
+         <div class="page-header">
+         <h1>Otros</h1>
+                  <nav class="navbar nav-pills" role="navigation"> <!--Antes class="navbar  navbar-default navbar-static-top" -->
+          <div class="container-fluid">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="bs-example-navbar-collapse-1">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              <a class="navbar-brand visible-xs-block" href="#">dominicos.es</a>
+            </div>
+        
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+              
+              <ul class="nav navbar-nav nav-pills">
+                <li><a href="#" >¿Quiénes somos?</a></li>
+                <li class="dropdown">
+                  <a href="#" class="dropdown-toggle" data-toggle="dropdown">¿Dónde estamos?<span class="caret"></span></a>
+                  <ul class="dropdown-menu" role="menu">
+                    <li><a href="#">España</a></li>
+                    <li><a href="#">Rep. Dominicana</a></li>
+                    <li><a href="#">Venezuela</a></li>
+                    <li class="divider"></li>
+                    <li><a href="#">Guínea</a></li>
+                    <li><a href="#">EEUU</a></li>
+                  </ul>
+                </li>
+                <li><a href="#">¿Qué hacemos?</a></li>
+                <li><a href="#">Actualidad</a></li>
+                <li><a href="#">Vocaciones</a></li>
+              </ul>
+              <ul class="nav navbar-nav nav-pills small">
+                <li><a href="#">Documentos</a></li>
+                <li><a href="#">Enlaces</a></li>
+                <li><a href="#">Contáctanos</a></li>                
+              </ul>
+            </div><!-- /.navbar-collapse -->
+          </div><!-- /.container-fluid -->
+        </nav>
+         </div>
+	  </div>
+      
+
+    
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+  <!-- Include all compiled plugins (below), or include individual files as needed -->
+  <script src="../static/bootstrap/js/bootstrap.min.js"></script>
+  </body>
+</html>
